@@ -8,6 +8,11 @@ class Reservation(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     max_participants = models.PositiveIntegerField(default=1)
+    is_open = models.BooleanField(default = False)
+    participants = models.ManyToManyField(CustomUser, blank = True, related_name='joined_reservations')
+
+    def is_full(self):
+        return self.participants.cout() >= self.max_participants
 
 class Post(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

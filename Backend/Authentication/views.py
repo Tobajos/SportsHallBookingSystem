@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class RegisterUser(APIView):
@@ -34,6 +35,15 @@ class Login(APIView):
 
         return Response({'message' : 'Logged in succesfully!','token' : token.key,'user_id':user.id,'firstname' : user.firstname,'lastname': user.lastname, 'email': user.email}, status=status.HTTP_200_OK)
     
+
+class Logout(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def post(self,request):
+        token = get_object_or_404(Token,user=request.user)
+        token.delete()
+        logout(request)
+        return Response({'message':'Logged out succesfully!'},status=status.HTTP_200_OK)
 
     
     

@@ -1,1 +1,10 @@
-<p>navbar works!</p>
+<div class="Container">
+    <a [routerLink]="'/'">LOGO</a>
+    <ng-container *ngIf="user; else loginLink">
+      <a (click)="logout()">Logout</a>
+      <a [routerLink]="'/profile'">Profil</a>
+    </ng-container>
+    <ng-template #loginLink>
+      <a [routerLink]="'/login'">Login</a>
+    </ng-template>
+  </div>

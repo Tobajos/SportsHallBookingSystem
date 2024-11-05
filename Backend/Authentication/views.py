@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class RegisterUser(APIView):
+      permission_classes = ()
       def post(self, request,format= None):
             serializer = RegisterUserSerializer(data = request.data)
             if serializer.is_valid():

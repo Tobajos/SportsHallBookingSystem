@@ -1,5 +1,6 @@
 <div class="Container">
     <a [routerLink]="'/'">LOGO</a>
+    <a [routerLink]="'community'">Community</a>
     <ng-container *ngIf="user; else loginLink">
       <a (click)="logout()">Logout</a>
       <a [routerLink]="'/profile'">Profil</a>

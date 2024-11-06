@@ -10,6 +10,7 @@ import { RegisterComponent } from './Site/register/register.component';
 import { HomeComponent } from './Site/home/home.component';
 import { NavbarComponent } from './Site/navbar/navbar.component';
 import { AuthService } from './Services/auth.service';
+import { CommunityComponent } from './Site/community/community.component';
 
 
 const routes: Routes = [
@@ -24,7 +25,8 @@ const routes: Routes = [
     LoginComponent,
     RegisterComponent,
     HomeComponent,
-    NavbarComponent
+    NavbarComponent,
+    CommunityComponent
   ],
   imports: [
     BrowserModule,

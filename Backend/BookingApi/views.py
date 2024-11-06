@@ -143,6 +143,7 @@ class AllPostView(APIView):
         if not request.user.is_authenticated:
                 return Response({'error': 'You must be logged in to see all posts!'}, status=status.HTTP_401_UNAUTHORIZED)
         posts = Post.objects.all()
+        print("Posts from DB:", posts)
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

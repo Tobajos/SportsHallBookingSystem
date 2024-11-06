@@ -1,0 +1,8 @@
+<p>community works!</p>
+<div *ngIf="posts.length > 0">
+    <div *ngFor="let post of posts" class="post">
+      <small>Posted by: {{ post.user.firstname }} {{ post.user.lastname }}</small>
+      <p>{{ post.content }}</p>
+      
+    </div>
+  </div>

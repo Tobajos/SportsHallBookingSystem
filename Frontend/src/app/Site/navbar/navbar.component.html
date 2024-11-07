@@ -1,5 +1,6 @@
-<div class="Container">
-    <a [routerLink]="'/'">LOGO</a>
+<div class="navContainer">
+  <div class="Container">
+    <a [routerLink]="'/'">Hallbooking</a>
     <a [routerLink]="'community'">Community</a>
     <ng-container *ngIf="user; else loginLink">
       <a (click)="logout()">Logout</a>
@@ -8,4 +9,5 @@
     <ng-template #loginLink>
       <a [routerLink]="'/login'">Login</a>
     </ng-template>
-  </div>
+</div>
+</div>

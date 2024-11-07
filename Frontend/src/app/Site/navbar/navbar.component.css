@@ -1,7 +1,18 @@
+.navContainer{
+    display: flex;
+    justify-content: center;
+}
+
 .Container {
-    width: 100%;
+    width: 90%;
+    height: 4rem;
     display: flex;
     justify-content: space-between; 
     padding: 20px 100px; 
     box-sizing: border-box; 
+    background-color: rgb(201, 221, 228);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    padding: 10px 20px;
+    border-radius: 20px;
+    align-items: center;
 }

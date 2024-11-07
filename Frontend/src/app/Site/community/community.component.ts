@@ -5,28 +5,83 @@ import { AuthService } from '../../Services/auth.service';
 @Component({
   selector: 'community',
   templateUrl: './community.component.html',
-  styleUrl: './community.component.css'
+  styleUrls: ['./community.component.css']
 })
 export class CommunityComponent implements OnInit {
-  posts: any[] = []
+  posts: any[] = [];
+  content: string = "";
+  commentContent: string = ''; 
+  showCommentInput: { [key: number]: boolean } = {}; 
 
-  constructor(private siteService: SiteService, private authService:AuthService){}
+  constructor(private siteService: SiteService, private authService: AuthService) {}
 
-  ngOnInit(){
+  ngOnInit() {
     this.getAllPosts();
   }
 
-  getAllPosts(): void{
+  addPost(): void {
+    if (this.content.trim()) {
+      this.siteService.createPost(this.content).subscribe(
+        (newPost) => {
+          this.posts.unshift(newPost);
+          this.content = '';  
+        },
+        (error) => {
+          console.error('Error adding post:', error);
+        }
+      );
+    }
+  }
 
+  getAllPosts(): void {
     this.siteService.getPosts().subscribe(
-      (data:any)=>{
+      (data: any) => {
         this.posts = data;
-        console.log('Data from API:', data);  
+        console.log('Data from API:', data);
 
+        this.posts.forEach(post => {
+          this.getCommentsForPost(post.id); 
+        });
       },
       (error) => {
-        console.error('Error', error.error)
+        console.error('Error fetching posts:', error);
       }
-    )
+    );
+  }
+
+  toggleCommentInput(postId: number): void {
+    this.showCommentInput[postId] = !this.showCommentInput[postId];
+  }
+
+  addComment(postId: number): void {
+    if (this.commentContent.trim()) {
+      this.siteService.createComment(postId, this.commentContent).subscribe(
+        (newComment) => {
+          const post = this.posts.find(p => p.id === postId);
+          if (post) {
+            post.comments.unshift(newComment); 
+            this.commentContent = ''; 
+            this.showCommentInput[postId] = false;  
+          }
+        },
+        (error) => {
+          console.error('Error adding comment:', error);
+        }
+      );
+    }
+  }
+
+  getCommentsForPost(postId: number): void {
+    this.siteService.getCommentsForPost(postId).subscribe(
+      (comments: any) => {
+        const post = this.posts.find(p => p.id === postId);
+        if (post) {
+          post.comments = comments; 
+        }
+      },
+      (error) => {
+        console.error('Error fetching comments:', error);
+      }
+    );
   }
 }

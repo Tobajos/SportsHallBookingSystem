@@ -11,7 +11,7 @@ export class CommunityComponent implements OnInit {
   posts: any[] = [];
   content: string = "";
   commentContent: string = ''; 
-  showCommentInput: { [key: number]: boolean } = {}; 
+  activeCommentPostId: number | null = null; 
 
   constructor(private siteService: SiteService, private authService: AuthService) {}
 
@@ -23,6 +23,7 @@ export class CommunityComponent implements OnInit {
     if (this.content.trim()) {
       this.siteService.createPost(this.content).subscribe(
         (newPost) => {
+          newPost.comments = [];
           this.posts.unshift(newPost);
           this.content = '';  
         },
@@ -50,7 +51,14 @@ export class CommunityComponent implements OnInit {
   }
 
   toggleCommentInput(postId: number): void {
-    this.showCommentInput[postId] = !this.showCommentInput[postId];
+    if (this.activeCommentPostId === postId) {
+      this.activeCommentPostId = null;
+      this.commentContent = '';
+    } else {
+      
+      this.activeCommentPostId = postId;
+      this.commentContent = '';
+    }
   }
 
   addComment(postId: number): void {
@@ -61,7 +69,7 @@ export class CommunityComponent implements OnInit {
           if (post) {
             post.comments.unshift(newComment); 
             this.commentContent = ''; 
-            this.showCommentInput[postId] = false;  
+            this.activeCommentPostId = null; 
           }
         },
         (error) => {

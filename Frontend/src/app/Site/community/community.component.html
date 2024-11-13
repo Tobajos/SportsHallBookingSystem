@@ -17,7 +17,7 @@
 
       <a (click)="toggleCommentInput(post.id)">Add Comment</a>
 
-      <div *ngIf="showCommentInput[post.id]">
+      <div *ngIf="activeCommentPostId === post.id">
         <textarea [(ngModel)]="commentContent" rows="4" cols="50" placeholder="Write your comment..."></textarea>
         <button (click)="addComment(post.id)">Add Comment</button>
       </div>

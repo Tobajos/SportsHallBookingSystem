@@ -36,7 +36,6 @@ class CustomUser(AbstractUser):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_created = models.DateTimeField(auto_now_add=True,null = False)
-    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     

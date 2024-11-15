@@ -39,10 +39,6 @@ export class CommunityComponent implements OnInit {
       (data: any) => {
         this.posts = data;
         console.log('Data from API:', data);
-
-        this.posts.forEach(post => {
-          this.getCommentsForPost(post.id); 
-        });
       },
       (error) => {
         console.error('Error fetching posts:', error);
@@ -55,9 +51,13 @@ export class CommunityComponent implements OnInit {
       this.activeCommentPostId = null;
       this.commentContent = '';
     } else {
-      
       this.activeCommentPostId = postId;
       this.commentContent = '';
+
+      const post = this.posts.find(p => p.id === postId);
+      if (post && !post.comments) {
+        this.getCommentsForPost(postId);
+      }
     }
   }
 
@@ -67,9 +67,9 @@ export class CommunityComponent implements OnInit {
         (newComment) => {
           const post = this.posts.find(p => p.id === postId);
           if (post) {
+            post.comments = post.comments || [];
             post.comments.unshift(newComment); 
             this.commentContent = ''; 
-            this.activeCommentPostId = null; 
           }
         },
         (error) => {

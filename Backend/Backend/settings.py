@@ -132,7 +132,8 @@ REST_FRAMEWORK = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
+USE_TZ = True  
 
 USE_I18N = True
 

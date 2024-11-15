@@ -1,38 +1,47 @@
 <div class="contentContainer">
   <div class="communityContainer">
+    <div class="introText">
+      <h1>Welcome to the Community Board!</h1>
+      <p>Connect with others, share your availability, and organize upcoming games. Whether you're looking for a partner or booking a time, this is the place to make it happen. Post and find your next match!</p>
+  </div>
+
     <div class="textContainer">
       <textarea class="textArea" id="newPostContent" [(ngModel)]="content" rows="4" cols="50"
-      placeholder="Napisz se cos wariaciku"></textarea>
-      <div class="buttonContainer"> 
+        placeholder="Napisz se cos wariaciku"></textarea>
+      <div class="buttonContainer">
         <button class="button" (click)="addPost()" [disabled]="!content.trim()">Post</button>
       </div>
     </div>
-    <div *ngIf="posts.length > 0">
+    
+    <div *ngIf="posts.length > 0" style="width: 100%;">
       <div *ngFor="let post of posts" class="postContainer">
-        
+        <div class="postAuthorContainer">
           <small class="postAuthor">Posted by: {{ post.user.firstname }} {{ post.user.lastname }}</small>
-          <p class="postContent">{{ post.content }}</p>
+          <small class="postAuthor">{{ post.date | date:'dd.MM.yyyy' }}</small>
+        </div>
 
-          <a (click)="toggleCommentInput(post.id)">Comments</a>
+        <p class="postContent">{{ post.content }}</p>
+        <div>
+          <a class="commentLink" (click)="toggleCommentInput(post.id)">Comments</a>
+        </div>
 
-          <div *ngIf="activeCommentPostId === post.id">
-            <div *ngIf="post.comments && post.comments.length > 0">
-              <div *ngFor="let comment of post.comments" class="commentContainer">
-                <small>{{ comment.user.firstname }} {{ comment.user.lastname }}</small>
-                <p class="commentContent">{{ comment.content }}</p>
-                
-              </div>
+
+        <div *ngIf="activeCommentPostId === post.id">
+          <div *ngIf="post.comments && post.comments.length > 0">
+            <div *ngFor="let comment of post.comments" class="commentContainer">
+              <small>{{ comment.user.firstname }} {{ comment.user.lastname }}</small>
+              <p class="commentContent">{{ comment.content }}</p>
+
             </div>
-            <div class="commentTextContainer">
-              <textarea class="textArea" [(ngModel)]="commentContent" rows="4" cols="50" placeholder="Write your comment..."></textarea>
-              <div class="buttonContainer">
-                <button class="buttonComment" (click)="addComment(post.id)">OK</button>
-              </div>
-            </div>
-            
-            
           </div>
-        
+          <div class="commentTextContainer">
+            <textarea class="textArea" [(ngModel)]="commentContent" rows="4" cols="50"
+              placeholder="Write your comment..."></textarea>
+            <div class="buttonContainer">
+              <button class="buttonComment" (click)="addComment(post.id)">OK</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

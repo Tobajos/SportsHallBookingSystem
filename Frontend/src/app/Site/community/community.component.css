@@ -1,16 +1,42 @@
 .postContainer {
     border-radius: 5px;
-    background-color: rgb(201, 221, 228);
+    background-color: #D3DEF3;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); 
     padding: 10px;
-    margin: 5px;
-    width: 40rem;
+    width: 90%;
+    margin-bottom: 1rem;
+}
+
+.introText {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.introText h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: bold;
+}
+
+.introText p {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.5;
 }
 
 .post {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.postAuthorContainer{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .postAuthor {
@@ -25,7 +51,7 @@
     border-radius: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     color: #333;
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.5;
     word-wrap: break-word;
     max-width: 100%;
@@ -38,12 +64,23 @@
     align-items: center;
 }
 
+.commentLink{
+    font-size:14px;
+    text-decoration: none;
+    user-select: none;
+}
+.commentLink:hover{
+    cursor:pointer;
+    text-decoration: underline;
+}
+
 .textContainer {
-    width: 80%;
+    width: 100%;
     height: 8rem;
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    margin-bottom: 20px;
 }
 
 .commentTextContainer {
@@ -74,7 +111,6 @@
 
 .commentContainer {
     border-radius: 5px;
-    background-color: rgb(201, 221, 228);
     padding: 10px;
     width: fit-content;
     display: flex;
@@ -104,7 +140,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: end;
 }
 
 .button {
@@ -113,13 +149,15 @@
     padding: 0.5rem 1rem;
     border-radius: 10px;
     border: none;
-    background-color: rgb(201, 221, 228);
+    background-color: var(--blue1);
     color: black;
+    transition: all 0.3s ease-in-out;
 }
 
 .button:hover {
     cursor: pointer;
     color: #333;
+    transform: translateY(-6px);
 }
 
 .buttonComment {
@@ -130,9 +168,11 @@
     border: none;
     background-color: white;
     color: black;
+    transition: all 0.3s ease-in-out;
 }
 
 .buttonComment:hover {
     cursor: pointer;
     color: #333;
+    transform: translateY(-6px);
 }

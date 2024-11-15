@@ -1,0 +1,65 @@
+.contentContainer {
+      margin-top: 0;
+      padding: 0;
+}
+
+.backgroundContainer {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: start;
+      height: 50vh;
+      padding: 50px;
+      margin: 0;
+      width: 100%;
+}
+
+.backgroundContainer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-image: url("../../../assets/img/basketballhall4.jpg");
+      background-size: cover;
+      filter: blur(4px);
+      z-index: -1;
+}
+
+.overlayText {
+
+      text-align: center;
+      color: white; /* White text color for better contrast */
+      z-index: 1; /* Ensuring the text is above the background */
+}
+
+.overlayText h1 {
+      font-size: 40px;
+      margin-bottom: 20px;
+      font-weight: bold;
+}
+
+.overlayText p {
+      font-size: 18px;
+      margin-bottom: 30px;
+}
+
+.button {
+      height: min-content;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--blue1);
+      color: black;
+      transition: all 0.3s ease-in-out;
+}
+
+.button:hover {
+      cursor: pointer;
+      color: #333;
+      transform: translateY(-5px);
+}
+
+

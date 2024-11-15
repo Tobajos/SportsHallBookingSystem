@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Reservation, Post, Comment
 from Authentication.models import CustomUser
+from django.utils.timezone import localtime
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

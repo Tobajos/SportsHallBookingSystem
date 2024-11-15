@@ -18,3 +18,14 @@ body {
     flex-direction: column;
     align-items: center;
 }
+
+:root {
+    --blue1: #B5C7EB;
+    --blue2: #BBCCED;
+    --blue3: #C1D0EE;
+    --blue4: #C7D5F0;
+    --blue5: #CDD9F1;
+    --blue6: #D3DEF3;
+    --blue7: #D9E2F5;
+    --blue8: #DFE7F6;
+}

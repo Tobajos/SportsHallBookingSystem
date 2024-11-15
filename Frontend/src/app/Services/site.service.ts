@@ -83,4 +83,31 @@ export class SiteService {
       })
     );
   }
+
+  createReservation(data:any):Observable<any> {
+    const user = this.authService.getUser();
+
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http
+      .post(`${this.api_url}reservation/`, data, { headers })
+      .pipe(catchError((error) => throwError(error)));
+  }
+  
+  getAllReservations():Observable<any> {
+    const user = this.authService.getUser();
+
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http
+      .get(`${this.api_url}reservations/`, { headers })
+      .pipe(catchError((error) => throwError(error)));
+  }
+
 }

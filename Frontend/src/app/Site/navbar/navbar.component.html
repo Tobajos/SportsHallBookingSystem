@@ -1,13 +1,13 @@
 <div class="navContainer">
   <div class="Container">
-    <a [routerLink]="'/'">Hallbooking</a>
-    <a [routerLink]="'community'">Community</a>
+    <a class="navbarLink" [routerLink]="'/'">Hallbooking</a>
+    <a class="navbarLink" [routerLink]="'community'">Community</a>
     <ng-container *ngIf="user; else loginLink">
-      <a (click)="logout()">Logout</a>
-      <a [routerLink]="'/profile'">Profil</a>
+      <a class="navbarLink" (click)="logout()">Logout</a>
+      <a class="navbarLink" [routerLink]="'/profile'">Profil</a>
     </ng-container>
     <ng-template #loginLink>
-      <a [routerLink]="'/login'">Login</a>
+      <a class="navbarLink" [routerLink]="'/login'">Login</a>
     </ng-template>
 </div>
 </div>

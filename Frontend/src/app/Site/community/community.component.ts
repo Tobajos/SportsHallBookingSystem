@@ -37,8 +37,8 @@ export class CommunityComponent implements OnInit {
   getAllPosts(): void {
     this.siteService.getPosts().subscribe(
       (data: any) => {
-        this.posts = data;
-        console.log('Data from API:', data);
+        this.posts = data.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        console.log('Data from API (sorted):', this.posts);
       },
       (error) => {
         console.error('Error fetching posts:', error);
@@ -68,7 +68,8 @@ export class CommunityComponent implements OnInit {
           const post = this.posts.find(p => p.id === postId);
           if (post) {
             post.comments = post.comments || [];
-            post.comments.unshift(newComment); 
+            post.comments.push(newComment); 
+            post.comments.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
             this.commentContent = ''; 
           }
         },
@@ -84,7 +85,7 @@ export class CommunityComponent implements OnInit {
       (comments: any) => {
         const post = this.posts.find(p => p.id === postId);
         if (post) {
-          post.comments = comments; 
+          post.comments = comments.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
         }
       },
       (error) => {

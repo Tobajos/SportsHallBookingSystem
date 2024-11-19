@@ -30,8 +30,8 @@
 .overlayText {
 
       text-align: center;
-      color: white; /* White text color for better contrast */
-      z-index: 1; /* Ensuring the text is above the background */
+      color: white; 
+      z-index: 1; 
 }
 
 .overlayText h1 {
@@ -62,4 +62,142 @@
       transform: translateY(-5px);
 }
 
+.calendar-container {
+  max-width: 25rem;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.days-header div {
+  padding: 5px 0;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.days-grid div {
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 50%; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  height: 30px;
+  width: 30px; 
+  font-size: 16px;
+  transition: background-color 0.3s ease, border 0.3s ease; 
+}
+
+.days-grid div:hover {
+  background-color: var(--blue7);
+}
+
+.days-grid div.today {
+  font-weight: bold;
+}
+
+.days-grid div.selected {
+  background-color: var(--blue1);
+  color: white;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+button {
+  padding: 5px 10px;
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+
+
+.close-button {
+  margin-top: 10px;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  align-items: center;
+}
+
+.slot.reserved {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.slot.slot-open {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.slot.available {
+  background-color: #f9f9f9;
+
+}
+
+
+.join-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.join-button:hover {
+  background-color: #45a049;
+}

@@ -1,12 +1,15 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import ReservationSerializer, PostSerializer, CommentSerializer
-from .models import Reservation, Post, Comment
+from .serializers import ReservationSerializer, PostSerializer, CommentSerializer, TeamSerializer
+from .models import Reservation, Post, Comment, Team
 from django.utils.dateparse import parse_time  
 from datetime import time
+from rest_framework.authentication import TokenAuthentication
 
 class ReservationView(APIView):
+    # permission_classes = [TokenAuthentication]
+    
     def post(self, request):
         if not request.user.is_authenticated:
             return Response({'error': 'You must be logged in to create a reservation!'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -75,12 +78,18 @@ class JoinReservationView(APIView):
         except Reservation.DoesNotExist:
             return Response({'error': 'Reservation not found!'}, status=status.HTTP_404_NOT_FOUND)
 
-        
+        if request.user in reservation.participants.all():
+            return Response({'error': 'You are already a participant in this reservation!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if reservation.user == request.user:
+            return Response({'error': 'You cannot join your own reservation!'}, status=status.HTTP_400_BAD_REQUEST)
+
         if reservation.is_open and reservation.participants.count() < reservation.max_participants:
             reservation.participants.add(request.user)
             return Response({'message': 'You have successfully joined the reservation!'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'This reservation is closed or full!'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -174,7 +183,7 @@ class CommentView(APIView):
             return Response({'error': 'You must be logged in to view comments!'}, status=status.HTTP_401_UNAUTHORIZED)
         if comment_id is not None:
             try:
-                comment = Comment.objects.get(id=comment_id)
+                comment = Comment.objects.get(id=comment_id) # get_object_or_404
                 serializer = CommentSerializer(comment)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Comment.DoesNotExist:
@@ -210,4 +219,81 @@ class AllCommentView(APIView):
 
         comments = Comment.objects.all() 
         serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class TeamView(APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to create a team!'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        data = request.data.copy()
+        data['leader'] = request.user.id  
+
+        if Team.objects.filter(name=data.get('name')).exists():
+            return Response({'error': 'A team with this name already exists!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = TeamSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(leader=request.user)  
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, team_id=None):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to view teams!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if team_id is not None:
+            try:
+                team = Team.objects.get(id=team_id)
+                serializer = TeamSerializer(team)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Team.DoesNotExist:
+                return Response({'error': 'Team not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        teams = Team.objects.filter(leader=request.user)
+        serializer = TeamSerializer(teams, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class JoinTeamView(APIView):
+    def post(self, request, team_id):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to join a team!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            team = Team.objects.get(id=team_id)
+        except Team.DoesNotExist:
+            return Response({'error': 'Team not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        if team.participants.filter(id=request.user.id).exists():
+            return Response({'error': 'You are already in this team!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        team.participants.add(request.user)
+        return Response({'message': 'You have successfully joined the team!'}, status=status.HTTP_200_OK)
+
+class LeaveTeamView(APIView):
+    def post(self, request, team_id):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to leave a team!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            team = Team.objects.get(id=team_id)
+        except Team.DoesNotExist:
+            return Response({'error': 'Team not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not team.participants.filter(id=request.user.id).exists():
+            return Response({'error': 'You are not a member of this team!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        team.participants.remove(request.user)
+        return Response({'message': 'You have successfully left the team!'}, status=status.HTTP_200_OK)
+
+class AllTeamsView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to see all teams!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        teams = Team.objects.all()
+        serializer = TeamSerializer(teams, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

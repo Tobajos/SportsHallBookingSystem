@@ -85,7 +85,12 @@ export class SiteService {
   }
 
   createReservation(data:any):Observable<any> {
-    const user = this.authService.getUser();
+    let user = this.authService.getUser();
+
+    const reservationData = {
+      data: data,
+      user: user.id
+    };
 
     const headers = new HttpHeaders({
       'Authorization': `Token ${user.token}`,
@@ -98,7 +103,7 @@ export class SiteService {
   }
   
   getAllReservations():Observable<any> {
-    const user = this.authService.getUser();
+    let user = this.authService.getUser();
 
     const headers = new HttpHeaders({
       'Authorization': `Token ${user.token}`,
@@ -110,4 +115,21 @@ export class SiteService {
       .pipe(catchError((error) => throwError(error)));
   }
 
+  joinReservation(reservationId: number): Observable<any> {
+    let user = this.authService.getUser();
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+  
+    return this.http
+      .post(`${this.api_url}reservation/${reservationId}/join/`, {}, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error joining reservation:', error);
+          return throwError(error);
+        })
+      );
+  }
 }

@@ -24,3 +24,10 @@ class Comment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField(max_length=500,blank=False, null = False)
     date = models.DateTimeField(auto_now_add=True)    
+
+class Team(models.Model):
+    name = models.CharField(max_length=255)
+    leader = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    participants = models.ManyToManyField(CustomUser,blank = True, related_name='teams') 
+
+

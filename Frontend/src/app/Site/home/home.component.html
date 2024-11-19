@@ -1,6 +1,5 @@
 <div class="contentContainer">
     <div class="backgroundContainer">
-        <!-- Overlay text content -->
         <div class="overlayText">
             <h1>Book Your Sports Hall in a Few Clicks!</h1>
             <p>Big hall, big opportunities. Check availability and book online.</p>
@@ -10,3 +9,76 @@
     <p>home works!</p>
 </div>
 
+<div class="calendar-container">
+  <div class="header">
+    <button (click)="prevMonth()">&#8592; Previous</button>
+    <h2>{{ monthNames[month] }} {{ year }}</h2>
+    <button (click)="nextMonth()">Next &#8594;</button>
+  </div>
+
+  <div class="days-header">
+    <div>Sun</div>
+    <div>Mon</div>
+    <div>Tue</div>
+    <div>Wed</div>
+    <div>Thu</div>
+    <div>Fri</div>
+    <div>Sat</div>
+  </div>
+
+  <div class="days-grid">
+    <div
+      *ngFor="let day of daysInMonth"
+      [class.today]="day.isToday"
+      [class.selected]="selectedDay?.toDateString() === day.date.toDateString()"
+      (click)="selectDay(day.date)"
+    >
+      {{ day.date.getDate() }}
+    </div>
+  </div>
+  
+  <div *ngIf="selectedDay" class="modal">
+    <div class="modal-content">
+      <h3>Reservations for {{ selectedDay | date: 'fullDate' }}</h3>
+      <ul>
+        <li *ngFor="let slot of timeSlots">
+          <div 
+            class="slot"
+            [ngClass]="{
+              'slot-open': isSlotOpen(slot),
+              'reserved': isReserved(slot) && !isSlotOpen(slot),
+              'available': isSlotAvailable(slot) && !isSlotOpen(slot)
+            }"
+            title="{{ getReservationDetails(slot) || 'Available' }}"
+          >
+          
+            {{ slot }}
+
+            <button 
+              *ngIf="isSlotOpen(slot)" 
+              class="join-button" 
+              (click)="joinOpenSlot(slot)"
+            >
+              Join
+            </button>
+            
+            <button 
+              *ngIf="isSlotAvailable(slot)" 
+              class="create-button" 
+              (click)="reserveTimeSlot(slot)"
+            >
+              Book
+            </button>
+          </div>
+        </li>
+      </ul>
+      <button class="close-button" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+  
+
+  
+  
+
+
+  

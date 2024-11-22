@@ -7,7 +7,7 @@
 
     <div class="textContainer">
       <textarea class="textArea" id="newPostContent" [(ngModel)]="content" rows="4" cols="50"
-        placeholder="Napisz se cos wariaciku"></textarea>
+        placeholder="Write your post..."></textarea>
       <div class="buttonContainer">
         <button class="button" (click)="addPost()" [disabled]="!content.trim()">Post</button>
       </div>

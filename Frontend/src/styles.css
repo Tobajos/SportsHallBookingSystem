@@ -29,3 +29,7 @@ body {
     --blue7: #D9E2F5;
     --blue8: #DFE7F6;
 }
+
+h1, h2, h3, p {
+    font-family: 'Poppins', sans-serif;
+}

@@ -11,7 +11,7 @@ import { HomeComponent } from './Site/home/home.component';
 import { NavbarComponent } from './Site/navbar/navbar.component';
 import { AuthService } from './Services/auth.service';
 import { CommunityComponent } from './Site/community/community.component';
-
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -32,7 +32,8 @@ const routes: Routes = [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,  
-    FormsModule,       
+    FormsModule,
+    FontAwesomeModule       
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

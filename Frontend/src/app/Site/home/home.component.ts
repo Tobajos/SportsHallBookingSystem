@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SiteService } from '../../Services/site.service';
+import { faChevronRight, faChevronLeft, faXmark} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-home',
@@ -7,6 +8,11 @@ import { SiteService } from '../../Services/site.service';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
+
+  left = faChevronLeft;
+  right = faChevronRight;
+  xMark = faXmark
+
   currentDate = new Date();
   year: number = this.currentDate.getFullYear();
   month: number = this.currentDate.getMonth();
@@ -14,7 +20,10 @@ export class HomeComponent implements OnInit {
   timeSlots: string[] = [];
   startHour = 10;
   endHour = 19;
-  daysInMonth: { date: Date; isToday: boolean }[] = [];
+  daysInMonth: ({ date: Date; isToday: boolean } | null)[] = [];
+  maxParticipants: number = 1;  
+  isOpen: boolean = true; 
+  showForm: boolean = false; 
 
   monthNames: string[] = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -51,7 +60,19 @@ export class HomeComponent implements OnInit {
 
   generateDaysInMonth() {
     const date = new Date(this.year, this.month, 1);
+    let firstDayOfWeek = date.getDay();
+    
+    
+    firstDayOfWeek = (firstDayOfWeek === 0) ? 6 : firstDayOfWeek - 1;
+  
     this.daysInMonth = [];
+  
+
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      this.daysInMonth.push(null);
+    }
+  
+
     while (date.getMonth() === this.month) {
       this.daysInMonth.push({
         date: new Date(date),
@@ -60,6 +81,8 @@ export class HomeComponent implements OnInit {
       date.setDate(date.getDate() + 1);
     }
   }
+  
+  
 
   generateTimeSlots() {
     this.timeSlots = [];
@@ -206,8 +229,39 @@ export class HomeComponent implements OnInit {
     this.generateDaysInMonth();
   }
 
-  closeModal() {
-    this.selectedDay = null;
+
+  openReservationForm(slot: string) {
+    if (this.selectedDay) {
+
+      this.reservationData = {
+        date: formatDateToYYYY_MM_DD(this.selectedDay),
+        start_time: slot.split(' - ')[0],
+        end_time: slot.split(' - ')[1]
+      };
+
+      this.showForm = true;
+    }
+  }
+
+  submitReservation() {
+    if (this.reservationData) {
+      const reservationDetails = {
+        ...this.reservationData,
+        max_participants: this.maxParticipants,
+        is_open: this.isOpen
+      };
+
+      this.siteService.createReservation(reservationDetails).subscribe(
+        (response) => {
+          console.log('Reservation created:', response);
+          this.showForm = false; 
+          this.ngOnInit(); 
+        },
+        (error) => {
+          console.error('Error creating reservation:', error);
+        }
+      );
+    }
   }
 }
 

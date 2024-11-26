@@ -132,4 +132,21 @@ export class SiteService {
         })
       );
   }
+
+  getUserReservations(reservationId?: number): Observable<any> {
+    let user = this.authService.getUser();
+
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+
+    if (reservationId) {
+      return this.http.get(`${this.api_url}reservation/${reservationId}/`, { headers })
+        .pipe(catchError((error) => throwError(error)));
+    }
+
+    return this.http.get(`${this.api_url}reservations/`, { headers })
+      .pipe(catchError((error) => throwError(error)));
+  }
 }

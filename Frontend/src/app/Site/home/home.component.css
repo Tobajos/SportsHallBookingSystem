@@ -6,8 +6,8 @@
 .backgroundContainer {
       position: relative;
       display: flex;
-      align-items: center;
-      justify-content: start;
+      align-items: end;
+      justify-content: center;
       height: 50vh;
       padding: 50px;
       margin: 0;
@@ -44,13 +44,15 @@
       font-size: 18px;
       margin-bottom: 30px;
 }
-
+.editIcon,
 .icon{
   cursor: pointer;
   padding:5px 10px 5px 10px;
   border-radius: 50%;
 }
-
+.editIcon:hover{
+  color:#a4a9ac;;
+}
 .icon:hover{
   background-color: var(--blue7);
 }
@@ -205,6 +207,11 @@ button {
   background-color: #f9f9f9;
 
 }
+
+.user-reservation {
+  background-color:var(--blue8); 
+}
+
 
 .reservationContainer h2 {
   font-size: 24px;

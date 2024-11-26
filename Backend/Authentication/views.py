@@ -18,24 +18,31 @@ class RegisterUser(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
 class Login(APIView):
-    permission_classes=()
+    permission_classes = ()
 
-    def post(self,request):
+    def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
 
         if email is None or password is None: 
-            return Response({'error' : 'You must insert username and password!'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'You must insert username and password!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = authenticate(email=email,password=password)
+        user = authenticate(email=email, password=password)
 
         if not user:
-            return Response({'error' : 'Invalid credentials!'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid credentials!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        token,created = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user)
+        print(user.id)
+        return Response({
+            'message': 'Logged in successfully!',
+            'token': token.key,
+            'user_id': user.id,  
+            'firstname': user.firstname,
+            'lastname': user.lastname,
+            'email': user.email
+        }, status=status.HTTP_200_OK)
 
-        return Response({'message' : 'Logged in succesfully!','token' : token.key,'user_id':user.id,'firstname' : user.firstname,'lastname': user.lastname, 'email': user.email}, status=status.HTTP_200_OK)
-    
 
 class Logout(APIView):
     permission_classes=[IsAuthenticated]

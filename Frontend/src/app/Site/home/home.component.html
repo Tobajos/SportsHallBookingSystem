@@ -1,7 +1,7 @@
 <div class="contentContainer">
   <div class="backgroundContainer">
     <div class="overlayText">
-      <h1>Book Your Sports Hall in a Few Clicks!</h1>
+      <h1>Book Our Basketball Court in Just a Few Clicks!</h1>
       <p>Big hall, big opportunities. Check availability and book online.</p>
       <button class="button">Book Now</button>
     </div>
@@ -40,14 +40,9 @@
       </div>
 
       <div class="days-grid">
-        <div
-          *ngFor="let day of daysInMonth"
-          [class.today]="day?.isToday"
-          [class.selected]="
+        <div *ngFor="let day of daysInMonth" [class.today]="day?.isToday" [class.selected]="
             day && selectedDay?.toDateString() === day.date.toDateString()
-          "
-          (click)="day && selectDay(day.date)"
-        >
+          " (click)="day && selectDay(day.date)">
           {{ day ? day.date.getDate() : "" }}
         </div>
       </div>
@@ -62,34 +57,31 @@
         <h2>Reservations for {{ selectedDay | date : "fullDate" }}</h2>
       </div>
       <ul class="slotsContainer">
-        <div *ngFor="let slot of timeSlots" >
-          <div
-            class="slot"
-            [ngClass]="{
-              'slot-open': isSlotOpen(slot),
-              reserved: isReserved(slot) && !isSlotOpen(slot),
-              available: isSlotAvailable(slot) && !isSlotOpen(slot)
-            }"
-            title="{{ getReservationDetails(slot) || 'Available' }}"
-          >
+        <div *ngFor="let slot of timeSlots">
+          <div class="slot" [ngClass]="{
+          'slot-open': isSlotOpen(slot) && !isUserReservation(slot),
+          'reserved': isReserved(slot) && !isSlotOpen(slot) && !isUserReservation(slot),
+          'available': isSlotAvailable(slot) && !isSlotOpen(slot),
+          'user-reservation': isUserReservation(slot)
+        }">
             {{ slot }}
+            <p *ngIf="isReserved(slot) && !isSlotOpen(slot) && !isUserReservation(slot)">Reserved</p>
+            <p *ngIf="isUserReservation(slot)">Your Reservation  <fa-icon [icon]="edit" class="editIcon" (click)="openEditReservation(slot)"></fa-icon></p>
 
-            <button
-              *ngIf="isSlotOpen(slot)"
-              class="button"
-              (click)="joinOpenSlot(slot)"
-            >
+            <button *ngIf="isSlotOpen(slot) && !isUserReservation(slot)" class="button" (click)="openJoinSummary(slot)">
               Join
+              {{ getParticipantsForSlot(slot) }} / {{ getMaxParticipantsForSlot(slot) }}
             </button>
 
-            <button
-              *ngIf="isSlotAvailable(slot)"
-              class="button"
-              (click)="openReservationForm(slot)"
-            >
+            <div *ngIf="isSlotOpen(slot) && !isUserReservation(slot)">
+              
+            </div>
+
+            <button *ngIf="isSlotAvailable(slot)" class="button" (click)="openReservationForm(slot)">
               Book
             </button>
           </div>
+ 
         </div>
       </ul>
     </div>
@@ -106,23 +98,61 @@
       </div>
       <div class="summaryForm">
 
+        <div *ngIf="isOpen">
+           <label for="maxParticipants">Max Participants</label>
+        <input type="number" id="maxParticipants" [(ngModel)]="maxParticipants" placeholder="Enter max participants" />
+        </div>
+       
+
+        <label for="isOpen">Is this reservation open?</label>
+        <select [(ngModel)]="isOpen" id="isOpen">
+          <option value="true">Open</option>
+          <option value="false">Closed</option>
+        </select>
+
+        <button class="button" (click)="submitReservation()">Submit Reservation</button>
+      </div>
+    </div>
+
+    <div *ngIf="showJoinSummary" class="summaryContainer">
+      <div class="stepContainer">
+        <h2>3. Join Reservation</h2>
+      </div>
+      <p>Review the reservation details and decide if you'd like to join.</p>   
+      <div class="summary">
+        <p><strong>Reserved by:</strong> {{ joinReservationDetails?.user?.firstname }} {{ joinReservationDetails?.user?.lastname }}</p>
+        <p><strong>Date:</strong> {{ joinReservationDetails?.date | date: 'fullDate' }}</p>
+        <p><strong>Time Slot:</strong> {{ joinReservationDetails?.start_time }} - {{ joinReservationDetails?.end_time }}</p>
+        <p><strong>Participants:</strong> {{ joinReservationDetails?.participant_count }} / {{ joinReservationDetails?.max_participants }}</p>
+      </div>
+    
+      <button class="button" (click)="confirmJoin()">Join Reservation</button>
+    </div>
+
+    <div *ngIf="showEditReservation" class="summaryContainer">
+      <div class="stepContainer">
+        <h2>3. Manage your reservation</h2>
+      </div>
+      <p>Review and update the reservation details.</p>
+    
+      <div class="summary">
+        <p><strong>Date:</strong> {{ joinReservationDetails?.date | date: 'fullDate' }}</p>
+        <p><strong>Time Slot:</strong> {{ joinReservationDetails?.start_time }} - {{ joinReservationDetails?.end_time }}</p>
+        <p><strong>Max Participants:</strong> {{ joinReservationDetails?.max_participants }}</p>
+        <p><strong>Participants:</strong> {{ joinReservationDetails?.participant_count }} / {{ joinReservationDetails?.max_participants }}</p>
       
-      <label for="maxParticipants">Max Participants</label>
-      <input
-        type="number"
-        id="maxParticipants"
-        [(ngModel)]="maxParticipants"
-        placeholder="Enter max participants"
-      />
-
-      <label for="isOpen">Is this reservation open?</label>
-      <select [(ngModel)]="isOpen" id="isOpen">
-        <option value="true">Open</option>
-        <option value="false">Closed</option>
-      </select>
-
-      <button class="button" (click)="submitReservation()">Submit Reservation</button>
+        <div *ngIf="joinReservationDetails?.participants?.length > 0">
+          <h3>Participants:</h3>
+          <ul>
+            <li *ngFor="let participant of joinReservationDetails.participants; let i = index">
+              {{ i + 1 }}. {{ participant.firstname }} {{ participant.lastname }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+    
+      <button class="button" (click)="confirmJoin()">Update Reservation</button>
     </div>
-    </div>
-  </div>
+    
 </div>

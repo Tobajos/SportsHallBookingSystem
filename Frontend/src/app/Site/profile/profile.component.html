@@ -1,0 +1,21 @@
+<div class="contentContainer">
+    <p>Profile works!</p>
+    <div *ngIf="userReservations && userReservations.length > 0; else noReservations">
+      <h3>Your Reservations:</h3>
+
+        <div *ngFor="let reservation of userReservations" class="reservationContainer">
+
+                <p><strong>Reservation ID:</strong> {{ reservation.id }}</p>
+                <p><strong>Start Time:</strong> {{ reservation.start_time }}</p>
+                <p><strong>End Time:</strong> {{ reservation.end_time }}</p>
+                <p><strong>Location:</strong> {{ reservation.location }}</p> 
+
+        </div>
+
+    </div>
+
+    <ng-template #noReservations>
+      <p>You don't have any reservations yet.</p>
+    </ng-template>
+  </div>
+  

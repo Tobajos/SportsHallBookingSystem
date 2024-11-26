@@ -1,11 +1,18 @@
 <div class="contentContainer">
-    <form (ngSubmit)="onSubmit(form)" #form="ngForm">    
-        <input type="email" placeholder="email" ngModel name="email" id="email">
-        <input type="password" placeholder="password" ngModel name="password" id="password">
-        <button>Login</button>
-    </form>    
+    <div style="align-items: center;text-align: center;">
+        <h1>Login</h1>
+        <h2 class="introText">Log in or sign up to book the hall and join the community!</h2>
+    </div>
     
+    <div class="loginContainer">
+        <div class="formContainer">
+            <form (ngSubmit)="onSubmit(form)" #form="ngForm">    
+                <input type="email" placeholder="Email" ngModel name="email" id="email" required>
+                <input type="password" placeholder="Password" ngModel name="password" id="password" required>
+                <button type="submit">Login</button>
+            </form>    
     
-    <p>Don't have account? <a [routerLink]="'/register'">Sign up here</a></p>
+            <p>Don't have an account? <a [routerLink]="'/register'">Sign up here</a></p>
+        </div>
+    </div>
 </div>
-

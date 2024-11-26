@@ -12,6 +12,7 @@ import { NavbarComponent } from './Site/navbar/navbar.component';
 import { AuthService } from './Services/auth.service';
 import { CommunityComponent } from './Site/community/community.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ProfileComponent } from './Site/profile/profile.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,7 +27,8 @@ const routes: Routes = [
     RegisterComponent,
     HomeComponent,
     NavbarComponent,
-    CommunityComponent
+    CommunityComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

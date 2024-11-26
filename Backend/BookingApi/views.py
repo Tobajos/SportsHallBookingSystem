@@ -66,6 +66,7 @@ class ReservationView(APIView):
         reservation.delete()
         return Response({'message': 'Reservation deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
+    
 
 
 class JoinReservationView(APIView):

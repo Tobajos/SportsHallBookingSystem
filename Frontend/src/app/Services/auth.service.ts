@@ -20,11 +20,14 @@ export class AuthService {
   login(data: any): Observable<any> {
     return this.http.post(`${this.api_url}login/`, data).pipe(
       tap((response: any) => {
+        console.log('to jest z authService',response); 
         localStorage.setItem('User', JSON.stringify(response)); 
         this.userSubject.next(response); 
       })
     );
   }
+  
+  
 
   register(data: any) {
     return this.http.post(`${this.api_url}register/`, data);

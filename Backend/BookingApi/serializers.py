@@ -11,10 +11,21 @@ class UserSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):  
     user=UserSerializer(read_only = True)
     participants = UserSerializer(many=True, read_only=True)
+    participant_count = serializers.SerializerMethodField()
+    available_spots = serializers.SerializerMethodField()
+    is_full = serializers.SerializerMethodField()
     
     class Meta:
         model = Reservation
-        fields = '__all__'
+        fields = '__all__'  
+    def get_participant_count(self, obj):
+        return obj.get_participant_count()
+
+    def get_available_spots(self, obj):
+        return obj.get_available_spots()
+
+    def get_is_full(self, obj):
+        return obj.is_full()
 
 class PostSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only = True)

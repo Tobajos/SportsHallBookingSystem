@@ -21,6 +21,7 @@ export class LoginComponent {
     this.authService.login(data).subscribe(
       (response:any)=>{
         localStorage.setItem('User', JSON.stringify({
+          "user_id":response.user_id,
           "email":response.email,
           "token":response.token,
           "firstname":response.firstname,

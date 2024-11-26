@@ -1,12 +1,19 @@
 <div class="contentContainer">
-    <form (ngSubmit)="onSubmit(form)" #form="ngForm">
-        <div>
-            <input type="email" placeholder="email" ngModel name="email" id="email">
-            <input type="password" placeholder="password" ngModel name="password" id="password">
-            <input type="text" placeholder="firstname" ngModel name="firstname" id="firstname" class="p-4 text-sm border border-gray-300 rounded" />
-            <input type="text" placeholder="lastname" ngModel name="lastname" id="lastname" class="p-4 text-sm border border-gray-300 rounded"/>
-        </div>
-        <button>Sign up</button>
-    </form>  
+
+    <div style="align-items: center;text-align: center;">
+        <h1>Sign up</h1>
+        <h2 class="introText">Create an account to book the hall and join our community</h2>
+    </div>
+    <div class="registerContainer">
+        <form (ngSubmit)="onSubmit(form)" #form="ngForm">
+            
+                <input type="email" placeholder="email" ngModel name="email" id="email">
+                <input type="password" placeholder="password" ngModel name="password" id="password">
+                <input type="text" placeholder="firstname" ngModel name="firstname" id="firstname" class="p-4 text-sm border border-gray-300 rounded" />
+                <input type="text" placeholder="lastname" ngModel name="lastname" id="lastname" class="p-4 text-sm border border-gray-300 rounded"/>
+            
+            <button>Sign up</button>
+        </form>  
+    </div>
 </div>
   

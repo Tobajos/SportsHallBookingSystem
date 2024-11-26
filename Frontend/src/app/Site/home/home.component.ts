@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SiteService } from '../../Services/site.service';
-import { faChevronRight, faChevronLeft, faXmark} from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faChevronLeft, faXmark,faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -12,6 +13,7 @@ export class HomeComponent implements OnInit {
   left = faChevronLeft;
   right = faChevronRight;
   xMark = faXmark
+  edit = faPenToSquare
 
   currentDate = new Date();
   year: number = this.currentDate.getFullYear();
@@ -23,7 +25,13 @@ export class HomeComponent implements OnInit {
   daysInMonth: ({ date: Date; isToday: boolean } | null)[] = [];
   maxParticipants: number = 1;  
   isOpen: boolean = true; 
-  showForm: boolean = false; 
+
+  showForm: boolean = false;
+  showJoinSummary:boolean = false;
+  showEditReservation:boolean = false;
+
+  joinReservationDetails: any = null;
+  currentUser: any = null;
 
   monthNames: string[] = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -37,7 +45,10 @@ export class HomeComponent implements OnInit {
     start_time: string;
     end_time: string;
     max_participants: number;
+    participant_count:number;
     is_open: boolean;
+    participants: { id: number; firstname: string; lastname: string }[]; 
+
   }[] = [];
 
   reservationData: {
@@ -46,15 +57,17 @@ export class HomeComponent implements OnInit {
     end_time: string
   } | null = null;
 
-  constructor(private siteService: SiteService) {
+  constructor(private siteService: SiteService, private authService: AuthService) {
     this.generateDaysInMonth();
     this.generateTimeSlots();
   }
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getUser();
     this.siteService.getAllReservations().subscribe((reservations) => {
       this.allReservations = reservations;
       console.log(this.allReservations);
+      console.log('to jest z homecomponent',this.currentUser)
     });
   }
 
@@ -111,29 +124,52 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  isUserReservation(slot: string): boolean {
+    if (!this.selectedDay || !this.currentUser) return false;
+  
+    const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
+    const [startTime, endTime] = slot.split(' - ');
+
+    return this.allReservations.some(reservation => {
+      const isSameDate = reservation.date === dateKey;
+      const reservationStartTime = reservation.start_time.slice(0, 5);
+      const reservationEndTime = reservation.end_time.slice(0, 5);
+  
+      const overlaps =
+        !(endTime <= reservationStartTime || startTime >= reservationEndTime);
+  
+      return isSameDate && overlaps && reservation.user.id === this.currentUser.user_id;
+    });
+  }
+  
+
   isSlotAvailable(slot: string): boolean {
     return !this.isReserved(slot);
   }
 
   isSlotOpen(slot: string): boolean {
     if (!this.selectedDay) return false;
-
+  
     const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
     const [startTime, endTime] = slot.split(' - ');
-
+  
     const reservation = this.allReservations.find(res => {
       const isSameDate = res.date === dateKey;
       const reservationStartTime = res.start_time.slice(0, 5);
       const reservationEndTime = res.end_time.slice(0, 5);
-
+  
       const overlaps =
         !(endTime <= reservationStartTime || startTime >= reservationEndTime);
-
+  
       return isSameDate && overlaps;
     });
-
-    return reservation?.is_open || false;
+    if (reservation && reservation.user.id === this.currentUser?.id) {
+      return false; 
+    }
+  
+    return reservation?.is_open || false; 
   }
+  
 
   getReservationDetails(slot: string): string | null {
     if (!this.selectedDay) return null;
@@ -188,28 +224,21 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  joinOpenSlot(slot: string) {
-    if (!this.selectedDay) return;
+  confirmJoin() {
+    if (!this.joinReservationDetails?.id) return;
   
-    const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
-    const [startTime] = slot.split(' - ');
-  
-    const reservation = this.allReservations.find(res => 
-      res.date === dateKey && res.start_time.startsWith(startTime)
+    this.siteService.joinReservation(this.joinReservationDetails.id).subscribe(
+      response => {
+        console.log('Successfully joined the reservation:', response);
+        this.showJoinSummary = false; 
+        this.ngOnInit(); 
+      },
+      error => {
+        console.error('Error joining the reservation:', error);
+      }
     );
-  
-    if (reservation) {
-      this.siteService.joinReservation(reservation.id).subscribe(
-        response => {
-          console.log('Successfully joined the reservation:', response);
-          this.ngOnInit();
-        },
-        error => {
-          console.error('Error joining the reservation:', error);
-        }
-      );
-    }
   }
+  
   
   prevMonth() {
     this.month--;
@@ -240,8 +269,60 @@ export class HomeComponent implements OnInit {
       };
 
       this.showForm = true;
+      this.showJoinSummary = false;
+      this.showEditReservation = false;
     }
   }
+
+  openEditReservation(slot: string) {
+    if (this.selectedDay) {
+      this.reservationData = {
+        date: formatDateToYYYY_MM_DD(this.selectedDay),
+        start_time: slot.split(' - ')[0],
+        end_time: slot.split(' - ')[1]
+      };
+  
+      const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
+      const [startTime, endTime] = slot.split(' - ');
+  
+      this.joinReservationDetails = this.allReservations.find(res => {
+        const isSameDate = res.date === dateKey;
+        const reservationStartTime = res.start_time.slice(0, 5);
+        const reservationEndTime = res.end_time.slice(0, 5);
+  
+        const overlaps =
+          !(endTime <= reservationStartTime || startTime >= reservationEndTime);
+  
+        return isSameDate && overlaps;
+      });
+  
+      this.showEditReservation = true;
+      this.showJoinSummary = false;
+      this.showForm = false;
+    }
+  }
+  
+
+  openJoinSummary(slot: string) {
+    if (!this.selectedDay) return;
+  
+    const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
+    const [startTime] = slot.split(' - ');
+  
+    const reservation = this.allReservations.find(res =>
+      res.date === dateKey && res.start_time.startsWith(startTime)
+    );
+  
+    if (reservation) {
+      this.joinReservationDetails = reservation; 
+      this.showJoinSummary = true; 
+      this.showForm = false; 
+      this.showEditReservation = false;
+    }
+  }
+  
+  
+  
 
   submitReservation() {
     if (this.reservationData) {
@@ -263,6 +344,48 @@ export class HomeComponent implements OnInit {
       );
     }
   }
+
+  getParticipantsForSlot(slot: string): number {
+    if (!this.selectedDay) return 0;
+  
+    const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
+    const [startTime, endTime] = slot.split(' - ');
+  
+    const reservation = this.allReservations.find(res => {
+      const isSameDate = res.date === dateKey;
+      const reservationStartTime = res.start_time.slice(0, 5);
+      const reservationEndTime = res.end_time.slice(0, 5);
+  
+      const overlaps =
+        !(endTime <= reservationStartTime || startTime >= reservationEndTime);
+  
+      return isSameDate && overlaps;
+    });
+  
+    return reservation ? reservation.participant_count : 0;
+  }
+  
+  getMaxParticipantsForSlot(slot: string): number {
+    if (!this.selectedDay) return 0;
+  
+    const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
+    const [startTime, endTime] = slot.split(' - ');
+  
+    const reservation = this.allReservations.find(res => {
+      const isSameDate = res.date === dateKey;
+      const reservationStartTime = res.start_time.slice(0, 5);
+      const reservationEndTime = res.end_time.slice(0, 5);
+  
+      const overlaps =
+        !(endTime <= reservationStartTime || startTime >= reservationEndTime);
+  
+      return isSameDate && overlaps;
+    });
+  
+    return reservation ? reservation.max_participants : 0;
+  }
+  
+  
 }
 
 function formatDateToYYYY_MM_DD(date: Date): string {

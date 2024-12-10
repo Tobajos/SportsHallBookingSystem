@@ -8,6 +8,12 @@
     <div class="textContainer">
       <textarea class="textArea" id="newPostContent" [(ngModel)]="content" rows="4" cols="50"
         placeholder="Write your post..."></textarea>
+      <select [(ngModel)]="selectedReservationId" class="reservationDropdown">
+        <option value="" disabled selected>Select a reservation</option>
+        <option *ngFor="let reservation of reservations" [value]="reservation.id">
+          {{ reservation.date | date:'dd-MM-yyyy' }} {{reservation.start_time}} - {{reservation.end_time}} 
+        </option>
+      </select>
       <div class="buttonContainer">
         <button class="button" (click)="addPost()" [disabled]="!content.trim()">Post</button>
       </div>
@@ -21,6 +27,14 @@
         </div>
 
         <p class="postContent">{{ post.content }}</p>
+
+        <div *ngIf="post.reservation">
+          <p>Reservation: {{ post.reservation.title }} ({{ post.reservation.currentParticipants }}/{{ post.reservation.maxParticipants }})</p>
+          <button *ngIf="post.reservation.currentParticipants < post.reservation.maxParticipants" (click)="joinReservation(post.reservation.id)">
+            Join
+          </button>
+        </div>
+
         <div>
           <a class="commentLink" (click)="toggleCommentInput(post.id)">Comments</a>
         </div>

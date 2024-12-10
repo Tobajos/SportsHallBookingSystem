@@ -6,6 +6,7 @@ from .models import Reservation, Post, Comment, Team
 from django.utils.dateparse import parse_time  
 from datetime import time
 from rest_framework.authentication import TokenAuthentication
+from .models import CustomUser
 
 class ReservationView(APIView):
     # permission_classes = [TokenAuthentication]
@@ -56,6 +57,8 @@ class ReservationView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     
+    
+    
     def delete(self,request, reservation_id):
         if not request.user.is_authenticated:
             return Response({'error': 'You must be logged in to delete a reservation!'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -86,8 +89,6 @@ class ReservationView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-
 class JoinReservationView(APIView):
     def post(self, request, reservation_id):
         if not request.user.is_authenticated:
@@ -110,7 +111,15 @@ class JoinReservationView(APIView):
         else:
             return Response({'error': 'This reservation is closed or full!'}, status=status.HTTP_400_BAD_REQUEST)
 
+class ParticipantReservationsView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to see reservations you joined!'}, status=status.HTTP_401_UNAUTHORIZED)
 
+        reservations = Reservation.objects.filter(participants=request.user).exclude(user=request.user)
+
+        serializer = ReservationSerializer(reservations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK) 
 
 
 class AllReservationsView(APIView):
@@ -120,7 +129,42 @@ class AllReservationsView(APIView):
         reservations = Reservation.objects.all()
         serializer = ReservationSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class LeaveReservationView(APIView):
+    def post(self, request, reservation_id):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to leave a reservation!'}, status=status.HTTP_401_UNAUTHORIZED)
 
+        try:
+            reservation = Reservation.objects.get(id=reservation_id)
+        except Reservation.DoesNotExist:
+            return Response({'error': 'Reservation not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user not in reservation.participants.all():
+            return Response({'error': 'You are not a participant in this reservation!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        reservation.participants.remove(request.user)
+        return Response({'message': 'You have successfully left the reservation!'}, status=status.HTTP_200_OK)
+
+class ReservationParticipantView(APIView):
+    def delete(self, request, reservation_id, user_id):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to remove a participant!'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            reservation = Reservation.objects.get(id=reservation_id, user=request.user)
+        except Reservation.DoesNotExist:
+            return Response({'error': 'Reservation not found or you do not have permission to remove a participant.'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            user_to_remove = CustomUser.objects.get(id=user_id)  
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user_to_remove not in reservation.participants.all():
+            return Response({'error': 'This user is not a participant in this reservation!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        reservation.participants.remove(user_to_remove)
+        return Response({'message': 'User has been removed from the reservation successfully!'}, status=status.HTTP_200_OK)
 
 class PostView(APIView):
     def post(self, request):

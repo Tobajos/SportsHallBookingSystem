@@ -324,6 +324,8 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  
+
   getParticipantsForSlot(slot: string): number {
     if (!this.selectedDay) return 0;
   

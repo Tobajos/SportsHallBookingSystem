@@ -185,5 +185,59 @@ export class SiteService {
         })
       );
   }
-  
+
+
+  getJoinedReservations(): Observable<any> {
+    const user = this.authService.getUser();
+
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http
+      .get(`${this.api_url}reservations/joined/`, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching joined reservations:', error);
+          return throwError(error);
+        })
+      );
+    }
+
+    leaveReservation(reservationId: number): Observable<any> {
+      const user = this.authService.getUser();  
+    
+      const headers = new HttpHeaders({
+        'Authorization': `Token ${user.token}`,  
+        'Content-Type': 'application/json'  
+      });
+    
+      return this.http
+        .post(`${this.api_url}reservation/${reservationId}/leave/`, {}, { headers })
+        .pipe(
+          catchError((error) => {
+            console.error('Error leaving reservation:', error);  
+            return throwError(error);  
+          })
+        );
+    }
+
+    removeParticipantFromReservation(reservationId: number, userId: number): Observable<any> {
+      const user = this.authService.getUser();
+    
+      const headers = new HttpHeaders({
+        'Authorization': `Token ${user.token}`,
+        'Content-Type': 'application/json'
+      });
+    
+      return this.http
+        .delete(`${this.api_url}reservation/${reservationId}/participant/${userId}/remove/`, { headers })
+        .pipe(
+          catchError((error) => {
+            console.error('Error removing participant from reservation:', error);
+            return throwError(error);
+          })
+        );
+    }
 }

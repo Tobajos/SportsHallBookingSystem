@@ -8,7 +8,10 @@ urlpatterns = [
     path('reservation/<int:reservation_id>/',views.ReservationView.as_view()),
     path('reservations/',views.AllReservationsView.as_view()),
     path('reservation/<int:reservation_id>/join/', views.JoinReservationView.as_view()),
-    
+    path('reservations/joined/', views.ParticipantReservationsView.as_view()),
+    path('reservation/<int:reservation_id>/leave/', views.LeaveReservationView.as_view()),
+    path('reservation/<int:reservation_id>/participant/<int:user_id>/remove/', views.ReservationParticipantView.as_view()),
+
     path('post/',views.PostView.as_view()),
     path('post/<int:post_id>/',views.PostView.as_view()),
     path('posts/', views.AllPostView.as_view()),

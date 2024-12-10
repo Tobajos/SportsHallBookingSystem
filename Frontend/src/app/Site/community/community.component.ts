@@ -13,19 +13,30 @@ export class CommunityComponent implements OnInit {
   commentContent: string = ''; 
   activeCommentPostId: number | null = null; 
 
+  reservations: any[] = []; 
+  selectedReservationId: number | null = null; 
+
   constructor(private siteService: SiteService, private authService: AuthService) {}
 
   ngOnInit() {
     this.getAllPosts();
+    this.getReservations();
   }
 
   addPost(): void {
     if (this.content.trim()) {
-      this.siteService.createPost(this.content).subscribe(
+      const postData = {
+        content: this.content,
+        reservationId: this.selectedReservationId // Dodajemy wybraną rezerwację
+      };
+  
+      this.siteService.createPost(postData).subscribe(
         (newPost) => {
           newPost.comments = [];
+          newPost.reservation = this.reservations.find(res => res.id === this.selectedReservationId); // Przypisujemy rezerwację do posta
           this.posts.unshift(newPost);
-          this.content = '';  
+          this.content = '';
+          this.selectedReservationId = null; // Resetujemy wybraną rezerwację po dodaniu posta
         },
         (error) => {
           console.error('Error adding post:', error);
@@ -42,6 +53,34 @@ export class CommunityComponent implements OnInit {
       },
       (error) => {
         console.error('Error fetching posts:', error);
+      }
+    );
+  }
+  
+  getReservations(): void {
+    this.siteService.getUserReservations().subscribe(
+      (data: any) => {
+        this.reservations = data;
+        console.log("rezerwacje na tablicy",this.reservations)
+      },
+      (error) => {
+        console.error('Error fetching reservations:', error);
+      }
+    );
+  }
+
+  // Dołączenie do rezerwacji
+  joinReservation(reservationId: number): void {
+    this.siteService.joinReservation(reservationId).subscribe(
+      (updatedReservation) => {
+        // Opcjonalnie: Po dołączeniu do rezerwacji, zaktualizuj liczbę uczestników
+        const reservation = this.reservations.find(r => r.id === reservationId);
+        if (reservation) {
+          reservation.currentParticipants += 1; // Zwiększ liczbę uczestników
+        }
+      },
+      (error) => {
+        console.error('Error joining reservation:', error);
       }
     );
   }

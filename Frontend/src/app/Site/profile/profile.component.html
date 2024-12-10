@@ -16,6 +16,8 @@
           <ul *ngIf="reservation.participants?.length > 0; else noParticipants">
             <li *ngFor="let participant of reservation.participants">
               {{ participant.firstname }} {{ participant.lastname }}
+              <fa-icon [icon]="kick" class="icon" (click)="showParticipantRemoveConfirmation(reservation.id, participant.id)"></fa-icon>
+              
             </li>
           </ul>
           <ng-template #noParticipants>
@@ -54,6 +56,30 @@
   <ng-template #noReservations>
     <p>You don't have any reservations yet.</p>
   </ng-template>
+
+  <div *ngIf="participantReservations && participantReservations.length > 0; else noParticipantReservations">
+    <h3>Reservations You Joined:</h3>
+    <div class="gridContainer">
+      <div *ngFor="let reservation of participantReservations" class="reservationContainer">
+        <div style="flex:1">
+          <p><strong>Host: {{ reservation.user.firstname }} {{ reservation.user.lastname }}</strong></p>
+          <p><strong>Date:</strong> {{ reservation.date }}</p>
+          <p><strong>Start Time:</strong> {{ reservation.start_time }}</p>
+          <p><strong>End Time:</strong> {{ reservation.end_time }}</p>
+          <p><strong>Participants:</strong> {{reservation.participant_count}}/{{ reservation.max_participants }}</p>
+          <p><strong>Open reservation:</strong> {{ reservation.is_open ? 'Yes' : 'No' }}</p>
+        </div>
+        <div style="display: flex; justify-content: end; height: min-content;" *ngIf="editingReservationId !== reservation.id">
+          <fa-icon [icon]="leave" class="icon" (click)="showLeaveConfirmation(reservation.id)"></fa-icon>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <ng-template #noParticipantReservations>
+    <p>You haven't joined any reservations yet.</p>
+  </ng-template>
 </div>
 
 <div class="confirmationDialog" *ngIf="isConfirmationVisible">
@@ -62,6 +88,26 @@
     <div style="width:100%;justify-content: center; display:flex; gap:10px">
       <button class="button" (click)="confirmDelete()">Yes</button>
       <button class="button" (click)="hideConfirmation()">No</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirmationDialog" *ngIf="isLeaveConfirmationVisible">
+  <div class="dialogContent">
+    <p>Are you sure you want to leave this reservation?</p>
+    <div style="width:100%; justify-content: center; display: flex; gap: 10px">
+      <button class="button" (click)="confirmLeave()">Yes</button>
+      <button class="button" (click)="hideLeaveConfirmation()">No</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirmationDialog" *ngIf="isParticipantRemoveConfirmationVisible">
+  <div class="dialogContent">
+    <p>Are you sure you want to remove this participant?</p>
+    <div style="width:100%;justify-content: center; display:flex; gap:10px">
+      <button class="button" (click)="confirmRemoveParticipant()">Yes</button>
+      <button class="button" (click)="hideParticipantRemoveConfirmation()">No</button>
     </div>
   </div>
 </div>

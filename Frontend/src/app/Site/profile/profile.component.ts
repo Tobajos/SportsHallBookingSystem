@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SiteService } from '../../Services/site.service';
-import { faTrash,faBars } from '@fortawesome/free-solid-svg-icons';
+import { faTrash,faBars,faRightFromBracket, faUserXmark } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-profile',
@@ -9,19 +9,27 @@ import { faTrash,faBars } from '@fortawesome/free-solid-svg-icons';
 })
 export class ProfileComponent implements OnInit {
 
-  edit = faBars
+  kick = faUserXmark;
+  leave = faRightFromBracket;
+  edit = faBars;
   delete = faTrash;
   userReservations: any[] = [];
   selectedReservationId: number | null = null;
   isConfirmationVisible: boolean = false;
   editingReservationId: number | null = null;
   editingData: any = {};
+  participantReservations: any[] = [];
+  isLeaveConfirmationVisible: boolean = false;
 
+  isParticipantRemoveConfirmationVisible: boolean = false;
+  selectedParticipantId: number | null = null;
+  selectedReservationForParticipant: number | null = null;
 
   constructor(private siteService: SiteService) { }
 
   ngOnInit(): void {
     this.loadReservations();
+    this.loadParticipantReservations();
   }
 
   loadReservations(): void {
@@ -90,4 +98,72 @@ export class ProfileComponent implements OnInit {
     }
   }
   
+
+  loadParticipantReservations(): void {
+    this.siteService.getJoinedReservations().subscribe(
+      (reservations) => {
+        this.participantReservations = reservations;
+        console.log('Participant reservations:', this.participantReservations);
+      },
+      (error) => {
+        console.error('Error fetching participant reservations:', error);
+      }
+    );
+  }
+  
+  showLeaveConfirmation(reservationId: number): void {
+    this.selectedReservationId = reservationId;
+    this.isLeaveConfirmationVisible = true;
+  }
+
+  hideLeaveConfirmation(): void {
+    this.selectedReservationId = null;
+    this.isLeaveConfirmationVisible = false;
+  }
+
+  confirmLeave(): void {
+    if (this.selectedReservationId !== null) {
+      this.leaveReservation(this.selectedReservationId);
+      this.hideLeaveConfirmation();
+    }
+  }
+
+  leaveReservation(reservationId: number): void {
+    this.siteService.leaveReservation(reservationId).subscribe(
+      (response) => {
+        console.log('Successfully left the reservation:', response);
+        this.loadParticipantReservations(); 
+      },
+      (error) => {
+        console.error('Error leaving reservation:', error);
+      }
+    );
+  }
+  showParticipantRemoveConfirmation(reservationId: number, participantId: number): void {
+    this.selectedReservationForParticipant = reservationId;
+    this.selectedParticipantId = participantId;
+    this.isParticipantRemoveConfirmationVisible = true;
+  }
+
+  hideParticipantRemoveConfirmation(): void {
+    this.selectedParticipantId = null;
+    this.selectedReservationForParticipant = null;
+    this.isParticipantRemoveConfirmationVisible = false;
+  }
+
+  confirmRemoveParticipant(): void {
+    if (this.selectedReservationForParticipant !== null && this.selectedParticipantId !== null) {
+      this.siteService.removeParticipantFromReservation(this.selectedReservationForParticipant, this.selectedParticipantId).subscribe(
+        (response) => {
+          console.log('Participant removed successfully:', response);
+          this.loadReservations();  
+          this.loadParticipantReservations(); 
+          this.hideParticipantRemoveConfirmation();
+        },
+        (error) => {
+          console.error('Error removing participant:', error);
+        }
+      );
+    }
+  }
 }

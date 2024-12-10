@@ -66,6 +66,25 @@ class ReservationView(APIView):
         reservation.delete()
         return Response({'message': 'Reservation deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
+    def put(self, request, reservation_id):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to edit a reservation!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            reservation = Reservation.objects.get(id=reservation_id, user=request.user)
+        except Reservation.DoesNotExist:
+            return Response({'error': 'Reservation not found or you do not have permission to edit this reservation.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ReservationSerializer(reservation, data=request.data, partial=True)  
+        if serializer.is_valid():
+            max_participants = serializer.validated_data.get('max_participants', reservation.max_participants)
+            if max_participants < reservation.get_participant_count():
+                return Response({'error': 'New max participants cannot be less than current participants count!'}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 

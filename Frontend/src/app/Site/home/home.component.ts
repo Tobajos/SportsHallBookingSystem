@@ -29,9 +29,11 @@ export class HomeComponent implements OnInit {
   showForm: boolean = false;
   showJoinSummary:boolean = false;
   showEditReservation:boolean = false;
+  errorMessage: string | null = null;
 
   joinReservationDetails: any = null;
   currentUser: any = null;
+
 
   monthNames: string[] = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -200,41 +202,19 @@ export class HomeComponent implements OnInit {
     this.selectedDay = day;
   }
 
-  reserveTimeSlot(slot: string) {
-    if (this.selectedDay) {
-      const dateKey = formatDateToYYYY_MM_DD(this.selectedDay);
-      const [startTime, endTime] = slot.split(' - ');
-
-      this.reservationData = {
-        date: dateKey,
-        start_time: startTime,
-        end_time: endTime
-      };
-
-      console.log("Reservation data being sent:", this.reservationData);
-
-      this.siteService.createReservation(this.reservationData).subscribe(
-        (response) => {
-          console.log('Reservation created:', response);
-        },
-        (error) => {
-          console.error('Error creating reservation:', error);
-        }
-      );
-    }
-  }
-
   confirmJoin() {
     if (!this.joinReservationDetails?.id) return;
   
     this.siteService.joinReservation(this.joinReservationDetails.id).subscribe(
       response => {
         console.log('Successfully joined the reservation:', response);
-        this.showJoinSummary = false; 
+        this.showJoinSummary = false;
+        this.errorMessage = null; 
         this.ngOnInit(); 
       },
       error => {
-        console.error('Error joining the reservation:', error);
+        console.error('Error joining the reservation:', error); 
+        this.errorMessage = error.error?.error || 'An unexpected error occurred.';
       }
     );
   }
@@ -321,9 +301,6 @@ export class HomeComponent implements OnInit {
     }
   }
   
-  
-  
-
   submitReservation() {
     if (this.reservationData) {
       const reservationDetails = {
@@ -339,7 +316,9 @@ export class HomeComponent implements OnInit {
           this.ngOnInit(); 
         },
         (error) => {
-          console.error('Error creating reservation:', error);
+          const errorMessage = error.error?.error || error.error?.message || error.message || 'An unexpected error occurred.';
+          console.error('Error creating reservation:', errorMessage);
+          this.errorMessage = errorMessage;
         }
       );
     }
@@ -385,6 +364,9 @@ export class HomeComponent implements OnInit {
     return reservation ? reservation.max_participants : 0;
   }
   
+  closeErrorMessage() {
+    this.errorMessage = null;
+  }
   
 }
 

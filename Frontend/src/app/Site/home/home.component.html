@@ -154,5 +154,14 @@
     
       <button class="button" (click)="confirmJoin()">Update Reservation</button>
     </div>
+
     
+</div>
+
+
+<div *ngIf="errorMessage" class="error-message">
+  <div class="error-content">
+    <p>{{ errorMessage }}</p>
+    <button class="button" (click)="closeErrorMessage()">Close</button>
+  </div>
 </div>

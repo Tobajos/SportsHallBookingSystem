@@ -15,11 +15,11 @@ class Reservation(models.Model):
         return self.participants.count() >= self.max_participants
     
     def get_participant_count(self):
-        return self.participants.count() + 1 
+        return self.participants.count() 
 
     def get_available_spots(self):
-
         return max(0, self.max_participants - self.get_participant_count())
+    
 class Post(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField(max_length=500,blank=False, null = False)

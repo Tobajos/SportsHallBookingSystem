@@ -3,11 +3,16 @@
     <a class="navbarLink" [routerLink]="'/'">Hallbooking</a>
     <a class="navbarLink" [routerLink]="'community'">Community</a>
     <ng-container *ngIf="user; else loginLink">
-      <a class="navbarLink" (click)="logout()">Logout</a>
-      <a class="navbarLink" [routerLink]="'/profile'">Profil</a>
+      <div class="dropdown" [ngClass]="{'open': dropdownVisible}">
+        <fa-icon [icon]="userIcon" class="icon" (click)="toggleDropdown()"></fa-icon>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" [routerLink]="'/profile'" (click)="dropdownVisible = false">Profil</a>
+          <a class="dropdown-item" [routerLink]="'/'" (click)="logout()">Logout</a>
+        </div>
+      </div>
     </ng-container>
     <ng-template #loginLink>
       <a class="navbarLink" [routerLink]="'/login'">Login</a>
     </ng-template>
-</div>
+  </div>
 </div>

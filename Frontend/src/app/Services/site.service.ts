@@ -146,7 +146,44 @@ export class SiteService {
         .pipe(catchError((error) => throwError(error)));
     }
 
-    return this.http.get(`${this.api_url}reservations/`, { headers })
+    return this.http.get(`${this.api_url}reservation/`, { headers })
       .pipe(catchError((error) => throwError(error)));
   }
+
+  deleteReservation(reservationId: number): Observable<any> {
+    const user = this.authService.getUser();
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+  
+    return this.http
+      .delete(`${this.api_url}reservation/${reservationId}/`, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error deleting reservation:', error);
+          return throwError(error);
+        })
+      );
+  }
+
+  updateReservation(reservationId: number, data: any): Observable<any> {
+    const user = this.authService.getUser();
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+  
+    return this.http
+      .put(`${this.api_url}reservation/${reservationId}/`, data, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error updating reservation:', error);
+          return throwError(error);
+        })
+      );
+  }
+  
 }

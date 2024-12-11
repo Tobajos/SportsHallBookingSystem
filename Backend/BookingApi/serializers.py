@@ -28,11 +28,21 @@ class ReservationSerializer(serializers.ModelSerializer):
         return obj.is_full()
 
 class PostSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only = True)
+    user = UserSerializer(read_only=True)
+    reservation = ReservationSerializer(read_only=True, required=False) 
     
     class Meta:
         model = Post
         fields = '__all__'
+
+    def create(self, validated_data):
+        reservation_data = validated_data.pop('reservation', None)
+        post = Post.objects.create(**validated_data)
+        if reservation_data:
+            post.reservation = reservation_data
+        post.save()
+        return post
+
 
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only = True)

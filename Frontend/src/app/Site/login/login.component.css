@@ -18,12 +18,14 @@ input[type="password"] {
     border-radius: 10px;
     width: 100%;
     transition: border-color 0.3s ease;
+    font-family: 'Poppins', sans-serif;
 }
 
 input[type="email"]:focus,
 input[type="password"]:focus {
     border-color: var(--blue1); 
     outline: none;
+    font-family: 'Poppins', sans-serif;
 }
 
 button {
@@ -68,7 +70,7 @@ a:hover {
 }
 
 .introText a {
-    color: var(--blue1); /* Link color */
+    color: var(--blue1); 
     text-decoration: none;
 }
 

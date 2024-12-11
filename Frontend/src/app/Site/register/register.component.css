@@ -18,6 +18,7 @@ input[type="text"] {
     border-radius: 10px;
     width: 100%;
     transition: border-color 0.3s ease;
+    font-family: 'Poppins', sans-serif;
 }
 
 input[type="email"]:focus,
@@ -25,6 +26,7 @@ input[type="password"]:focus,
 input[type="text"]:focus {
     border-color: var(--blue1); 
     outline: none;
+    font-family: 'Poppins', sans-serif;
 }
 
 button {

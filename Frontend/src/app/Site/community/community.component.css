@@ -3,7 +3,7 @@
     background-color: #D3DEF3;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); 
     padding: 10px;
-    width: 90%;
+    width: 100%;
     margin-bottom: 1rem;
 }
 
@@ -137,10 +137,9 @@
 }
 
 .buttonContainer {
-    height: 100%;
+    margin-top: 1rem;
     display: flex;
-    flex-direction: column;
-    justify-content: end;
+    justify-content: center;
 }
 
 .button {
@@ -176,3 +175,89 @@
     color: #333;
     transform: translateY(-6px);
 }
+
+.error-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .error-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom:0;
+  }
+  
+  input[type="number"], select {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    transition: border 0.3s ease;
+}
+  
+  input:focus, select:focus {
+    border-color: var(--blue1);
+    outline: none;
+  }
+  
+  select {
+    height: 40px;
+    font-family: 'Poppins', sans-serif;
+  }
+
+
+
+  .reservationInfoText{
+    padding:0;
+    margin:0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .icon{
+    cursor: pointer;
+    padding:5px 10px 5px 10px;
+    border-radius: 50%;
+  }
+  .icon:hover{
+    background-color: white;
+  }
+
+  .confirmationDialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .dialogContent {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+

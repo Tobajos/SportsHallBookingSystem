@@ -3,7 +3,7 @@
     <div class="overlayText">
       <h1>Book Our Basketball Court in Just a Few Clicks!</h1>
       <p>Big hall, big opportunities. Check availability and book online.</p>
-      <button class="button">Book Now</button>
+      <button class="button" (click)="scrollToCalendar()">Book Now</button>
     </div>
   </div>
   <h1>Book Your Sports Hall in Just a Few Steps!</h1>
@@ -14,7 +14,7 @@
   </h3>
 
   <div class="reservationContainer">
-    <div class="calendar-container">
+    <div  id="calendar" class="calendar-container">
       <div class="stepContainer">
         <h2>1. Pick a Date</h2>
       </div>
@@ -100,7 +100,16 @@
 
         <div *ngIf="isOpen">
            <label for="maxParticipants">Max Participants</label>
-        <input type="number" id="maxParticipants" [(ngModel)]="maxParticipants" placeholder="Enter max participants" />
+           <input 
+            type="number" 
+            id="maxParticipants" 
+            [(ngModel)]="maxParticipants" 
+            (ngModelChange)="validateMaxParticipants($event)" 
+            placeholder="Enter max participants"
+            [min]="1" 
+            [max]="10"
+            style="margin-left: 1rem;"
+          />
         </div>
        
 

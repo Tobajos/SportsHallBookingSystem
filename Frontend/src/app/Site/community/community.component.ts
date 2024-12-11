@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SiteService } from '../../Services/site.service';
 import { AuthService } from '../../Services/auth.service';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'community',
@@ -12,34 +13,61 @@ export class CommunityComponent implements OnInit {
   content: string = "";
   commentContent: string = ''; 
   activeCommentPostId: number | null = null; 
-
+  currentUser: any;
   reservations: any[] = []; 
   selectedReservationId: number | null = null; 
+  errorMessage: string | null = null;
+  delete = faTrash;
+
+  isPostDeleteConfirmationVisible: boolean = false;
+  postToDelete: number | null = null;
 
   constructor(private siteService: SiteService, private authService: AuthService) {}
 
   ngOnInit() {
+    this.currentUser = this.authService.getUser();
     this.getAllPosts();
     this.getReservations();
+    console.log("userek",this.currentUser)
   }
 
   addPost(): void {
+    console.log("Dodawanie posta z rezerwacją ID:", this.selectedReservationId); 
     if (this.content.trim()) {
       const postData = {
         content: this.content,
-        reservationId: this.selectedReservationId // Dodajemy wybraną rezerwację
+        reservationId: this.selectedReservationId 
       };
   
       this.siteService.createPost(postData).subscribe(
         (newPost) => {
+          console.log("Odpowiedź z serwera - nowy post:", newPost);
           newPost.comments = [];
-          newPost.reservation = this.reservations.find(res => res.id === this.selectedReservationId); // Przypisujemy rezerwację do posta
+          newPost.reservation = this.reservations.find(res => res.id === this.selectedReservationId);
           this.posts.unshift(newPost);
+
+          this.ngOnInit();
           this.content = '';
-          this.selectedReservationId = null; // Resetujemy wybraną rezerwację po dodaniu posta
+          this.selectedReservationId = null;
         },
         (error) => {
-          console.error('Error adding post:', error);
+          console.error('Błąd przy dodawaniu posta:', error);
+        }
+      );
+    }
+  }
+  
+  confirmDeletePost(): void {
+    if (this.postToDelete !== null) {
+      this.siteService.deletePost(this.postToDelete).subscribe(
+        () => {
+          this.posts = this.posts.filter(post => post.id !== this.postToDelete);
+          console.log('Post deleted successfully');
+          this.hideDeleteConfirmation();
+        },
+        (error) => {
+          console.error('Error deleting post:', error);
+          this.hideDeleteConfirmation();
         }
       );
     }
@@ -69,18 +97,16 @@ export class CommunityComponent implements OnInit {
     );
   }
 
-  // Dołączenie do rezerwacji
+
   joinReservation(reservationId: number): void {
     this.siteService.joinReservation(reservationId).subscribe(
-      (updatedReservation) => {
-        // Opcjonalnie: Po dołączeniu do rezerwacji, zaktualizuj liczbę uczestników
-        const reservation = this.reservations.find(r => r.id === reservationId);
-        if (reservation) {
-          reservation.currentParticipants += 1; // Zwiększ liczbę uczestników
-        }
+      response =>{
+        this.errorMessage = null;
+        this.ngOnInit();
       },
       (error) => {
         console.error('Error joining reservation:', error);
+        this.errorMessage = error.error?.error || 'An unexpected error occurred.';
       }
     );
   }
@@ -119,6 +145,8 @@ export class CommunityComponent implements OnInit {
     }
   }
 
+  
+
   getCommentsForPost(postId: number): void {
     this.siteService.getCommentsForPost(postId).subscribe(
       (comments: any) => {
@@ -131,5 +159,19 @@ export class CommunityComponent implements OnInit {
         console.error('Error fetching comments:', error);
       }
     );
+  }
+
+  showConfirmation(postId: number): void {
+    this.isPostDeleteConfirmationVisible = true;
+    this.postToDelete = postId;
+  }
+
+  hideDeleteConfirmation(): void {
+    this.isPostDeleteConfirmationVisible = false;
+    this.postToDelete = null;
+  }
+
+  closeErrorMessage() {
+    this.errorMessage = null;
   }
 }

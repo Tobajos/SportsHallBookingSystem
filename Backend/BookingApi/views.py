@@ -174,12 +174,26 @@ class PostView(APIView):
         data = request.data.copy()
         data['user'] = request.user.id  
 
+        reservation_id = data.get('reservationId', None)
+        if reservation_id:
+            try:
+                reservation = Reservation.objects.get(id=reservation_id)
+                data['reservation'] = reservation
+                print(f"Assigned reservation with ID {reservation_id} to post.")
+            except Reservation.DoesNotExist:
+                print(f"Reservation with ID {reservation_id} does not exist.")
+                return Response({'error': 'Reservation not found'}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = PostSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(user = request.user)  
+            post = serializer.save(user=request.user)  
+            if reservation_id:
+                post.reservation = reservation
+                post.save()  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
     def get(self, request, post_id=None):

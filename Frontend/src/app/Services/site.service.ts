@@ -31,11 +31,14 @@ export class SiteService {
   createPost(data: any): Observable<any> {
     let user = this.authService.getUser();  
   
-    
-    const postData = {
-      content: data,  
-      user: user.id   
+    const postData: any = {
+      content: data.content,
+      user: user.id,
     };
+  
+    if (data.reservationId) {
+      postData['reservationId'] = data.reservationId;  
+    }
   
     const headers = new HttpHeaders({
       'Authorization': `Token ${user.token}`,  
@@ -48,6 +51,25 @@ export class SiteService {
       })
     );
   }
+
+  deletePost(postId: number): Observable<any> {
+    const user = this.authService.getUser();
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+  
+    return this.http
+      .delete(`${this.api_url}post/${postId}/`, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error deleting post:', error);
+          return throwError(error);
+        })
+      );
+  }
+  
 
   createComment(postId: number, content: string): Observable<any> {
     let user = this.authService.getUser();

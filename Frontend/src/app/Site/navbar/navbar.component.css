@@ -90,3 +90,9 @@
 .icon:hover{
   background-color: var(--blue7);
 }
+
+.navbarLink.disabled {
+  pointer-events: none; 
+  color: gray;
+  text-decoration: none; 
+}

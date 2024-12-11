@@ -24,6 +24,7 @@ class Post(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField(max_length=500,blank=False, null = False)
     date = models.DateTimeField(auto_now_add=True)
+    reservation = models.ForeignKey('Reservation', on_delete=models.SET_NULL, null=True, blank=True)
     
 
 class Comment(models.Model):

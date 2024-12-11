@@ -1,12 +1,18 @@
 <div class="navContainer">
   <div class="Container">
     <a class="navbarLink" [routerLink]="'/'">Hallbooking</a>
-    <a class="navbarLink" [routerLink]="'community'">Community</a>
+    <a class="navbarLink"
+       [routerLink]="user ? 'community' : null"
+       [attr.title]="user ? '' : 'Please log in to see the announcements board'"
+       [ngStyle]="{'cursor': user ? 'pointer' : 'not-allowed'}"
+       (click)="user ? null : $event.preventDefault()">
+      Community
+    </a>
     <ng-container *ngIf="user; else loginLink">
       <div class="dropdown" [ngClass]="{'open': dropdownVisible}">
         <fa-icon [icon]="userIcon" class="icon" (click)="toggleDropdown()"></fa-icon>
         <div class="dropdown-menu">
-          <a class="dropdown-item" [routerLink]="'/profile'" (click)="dropdownVisible = false">Profil</a>
+          <a class="dropdown-item" [routerLink]="'/profile'" (click)="dropdownVisible = false">Profile</a>
           <a class="dropdown-item" [routerLink]="'/'" (click)="logout()">Logout</a>
         </div>
       </div>

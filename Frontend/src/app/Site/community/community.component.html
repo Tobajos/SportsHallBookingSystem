@@ -8,17 +8,18 @@
     <div class="textContainer">
       <textarea class="textArea" id="newPostContent" [(ngModel)]="content" rows="4" cols="50"
         placeholder="Write your post..."></textarea>
+      <div>
+      <p class="reservationInfoText">Link your reservation (optional). This allows others to join your reservation.</p>
       <select [(ngModel)]="selectedReservationId" class="reservationDropdown">
-        <option value="" disabled selected>Select a reservation</option>
         <option *ngFor="let reservation of reservations" [value]="reservation.id">
-          {{ reservation.date | date:'dd-MM-yyyy' }} {{reservation.start_time}} - {{reservation.end_time}} 
+          {{ reservation.date | date:'dd-MM-yyyy' }} {{ reservation.start_time }} - {{ reservation.end_time }}
         </option>
       </select>
       <div class="buttonContainer">
         <button class="button" (click)="addPost()" [disabled]="!content.trim()">Post</button>
       </div>
+      </div>
     </div>
-    
     <div *ngIf="posts.length > 0" style="width: 100%;">
       <div *ngFor="let post of posts" class="postContainer">
         <div class="postAuthorContainer">
@@ -29,14 +30,20 @@
         <p class="postContent">{{ post.content }}</p>
 
         <div *ngIf="post.reservation">
-          <p>Reservation: {{ post.reservation.title }} ({{ post.reservation.currentParticipants }}/{{ post.reservation.maxParticipants }})</p>
-          <button *ngIf="post.reservation.currentParticipants < post.reservation.maxParticipants" (click)="joinReservation(post.reservation.id)">
+          <p><strong>Date:</strong> {{ post.reservation.date }}</p>
+          <p><strong>Start Time:</strong> {{ post.reservation.start_time }}</p>
+          <p><strong>End Time:</strong> {{ post.reservation.end_time }}</p>
+          <p><strong>Participants:</strong> {{post.reservation.participant_count}}/{{ post.reservation.max_participants }}</p>
+          <button class="buttonComment" (click)="joinReservation(post.reservation.id)">
             Join
           </button>
         </div>
 
-        <div>
+        <div style="display:flex; justify-content: space-between; width: 100%;">
           <a class="commentLink" (click)="toggleCommentInput(post.id)">Comments</a>
+          <div *ngIf="post.user.id === currentUser.user_id" class="postActions">
+            <fa-icon [icon]="delete" class="icon" (click)="showConfirmation(post.id)"></fa-icon>
+          </div>
         </div>
 
 
@@ -52,11 +59,28 @@
             <textarea class="textArea" [(ngModel)]="commentContent" rows="4" cols="50"
               placeholder="Write your comment..."></textarea>
             <div class="buttonContainer">
-              <button class="buttonComment" (click)="addComment(post.id)">OK</button>
+              <button class="buttonComment"  (click)="addComment(post.id)">OK</button>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="errorMessage" class="error-message">
+  <div class="error-content">
+    <p>{{ errorMessage }}</p>
+    <button class="button" (click)="closeErrorMessage()">Close</button>
+  </div>
+</div>
+
+<div class="confirmationDialog" *ngIf="isPostDeleteConfirmationVisible">
+  <div class="dialogContent">
+    <p>Are you sure you want to delete this post?</p>
+    <div style="width:100%;justify-content: center; display:flex; gap:10px">
+      <button class="button" (click)="confirmDeletePost()">Yes</button>
+      <button class="button" (click)="hideDeleteConfirmation()">No</button>
     </div>
   </div>
 </div>

@@ -126,6 +126,13 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  scrollToCalendar() {
+    const calendarElement = document.getElementById('calendar');
+    if (calendarElement) {
+      calendarElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   isUserReservation(slot: string): boolean {
     if (!this.selectedDay || !this.currentUser) return false;
   
@@ -302,13 +309,18 @@ export class HomeComponent implements OnInit {
   }
   
   submitReservation() {
+    if (!this.currentUser) {
+      this.errorMessage = 'You must be logged in to make a reservation.';
+      return; 
+    }
+  
     if (this.reservationData) {
       const reservationDetails = {
         ...this.reservationData,
         max_participants: this.maxParticipants,
         is_open: this.isOpen
       };
-
+  
       this.siteService.createReservation(reservationDetails).subscribe(
         (response) => {
           console.log('Reservation created:', response);
@@ -321,6 +333,16 @@ export class HomeComponent implements OnInit {
           this.errorMessage = errorMessage;
         }
       );
+    }
+  }
+
+  validateMaxParticipants(value: number): void {
+    if (value > 10) {
+      this.maxParticipants = 10;
+    } else if (value < 1) {
+      this.maxParticipants = 1;
+    } else {
+      this.maxParticipants = value;
     }
   }
 

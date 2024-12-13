@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import ReservationSerializer, PostSerializer, CommentSerializer, TeamSerializer
+from rest_framework.permissions import IsAuthenticated
 from .models import Reservation, Post, Comment, Team
 from django.utils.dateparse import parse_time  
 from datetime import time
@@ -9,7 +10,8 @@ from rest_framework.authentication import TokenAuthentication
 from .models import CustomUser
 
 class ReservationView(APIView):
-    # permission_classes = [TokenAuthentication]
+    # permission_classes=[IsAuthenticated]
+    # authentication_classes=[TokenAuthentication]
     
     def post(self, request):
         if not request.user.is_authenticated:
@@ -22,8 +24,12 @@ class ReservationView(APIView):
         start_time = parse_time(data.get('start_time'))
         end_time = parse_time(data.get('end_time'))
 
+        if start_time >= end_time:
+            return Response({'error': 'Start time cannot be later than end time!'}, status=status.HTTP_400_BAD_REQUEST)
+
         if not date or not start_time or not end_time:
             return Response({'error': 'Invalid date or time provided!'}, status=status.HTTP_400_BAD_REQUEST)
+        
         overlapping_reservations = Reservation.objects.filter(
             date=date, 
             start_time__lt=end_time, 
@@ -38,6 +44,7 @@ class ReservationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
     def get(self, request, reservation_id=None):
@@ -78,16 +85,22 @@ class ReservationView(APIView):
         except Reservation.DoesNotExist:
             return Response({'error': 'Reservation not found or you do not have permission to edit this reservation.'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ReservationSerializer(reservation, data=request.data, partial=True)  
+        serializer = ReservationSerializer(reservation, data=request.data, partial=True)
+        
         if serializer.is_valid():
             max_participants = serializer.validated_data.get('max_participants', reservation.max_participants)
-            if max_participants < reservation.get_participant_count():
+            
+            current_participants = reservation.get_participant_count()
+            
+            if max_participants < current_participants:
                 return Response({'error': 'New max participants cannot be less than current participants count!'}, status=status.HTTP_400_BAD_REQUEST)
-
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
     
 class JoinReservationView(APIView):
     def post(self, request, reservation_id):

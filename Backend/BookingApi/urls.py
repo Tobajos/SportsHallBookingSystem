@@ -19,13 +19,7 @@ urlpatterns = [
     path('post/<int:post_id>/comments/', views.CommentView.as_view()),  
     path('comment/<int:comment_id>/', views.CommentView.as_view()),  
     path('comments/', views.AllCommentView.as_view()),  
-
-    path('team/', views.TeamView.as_view()),  
-    path('team/<int:team_id>/', views.TeamView.as_view()), 
-    path('teams/', views.AllTeamsView.as_view()), 
-
-    path('team/<int:team_id>/join/', views.JoinTeamView.as_view()),  
-    path('team/<int:team_id>/leave/', views.LeaveTeamView.as_view()),  
+ 
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -41,7 +41,8 @@ class CustomUser(AbstractUser):
     
     objects = UserManager()
     
-    
+    def is_admin(self):
+        return self.is_superuser
        
     def __str__(self):
         return self.email

@@ -77,13 +77,26 @@ export class CommunityComponent implements OnInit {
     this.siteService.getPosts().subscribe(
       (data: any) => {
         this.posts = data.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        console.log('Data from API (sorted):', this.posts);
+  
+
+        this.posts.forEach((post) => {
+          this.siteService.getCommentsForPost(post.id).subscribe(
+            (comments: any) => {
+              post.commentsCount = comments.length; 
+            },
+            (error) => {
+              console.error('Error fetching comments count:', error);
+              post.commentsCount = 0; 
+            }
+          );
+        });
       },
       (error) => {
         console.error('Error fetching posts:', error);
       }
     );
   }
+  
   
   getReservations(): void {
     this.siteService.getUserReservations().subscribe(
@@ -134,6 +147,7 @@ export class CommunityComponent implements OnInit {
           if (post) {
             post.comments = post.comments || [];
             post.comments.push(newComment); 
+            post.commentsCount = post.comments.length; // Aktualizacja liczby komentarzy
             post.comments.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
             this.commentContent = ''; 
           }
@@ -153,6 +167,7 @@ export class CommunityComponent implements OnInit {
         const post = this.posts.find(p => p.id === postId);
         if (post) {
           post.comments = comments.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          post.commentsCount = comments.length; // Aktualizacja liczby komentarzy
         }
       },
       (error) => {

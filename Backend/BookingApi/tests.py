@@ -430,7 +430,6 @@ class ReservationParticipantTests(TestCase):
         self.user3 = User.objects.create_user(email='testuser3@example.com', password='password123')
         self.client.force_authenticate(user=self.user)
 
-        # Tworzenie rezerwacji, której właścicielem jest użytkownik
         self.reservation = Reservation.objects.create(
             user=self.user,
             date="2024-12-20",
@@ -602,7 +601,7 @@ class PostViewTests(TestCase):
     def test_delete_post_not_found(self):
         response = self.client.delete('/bookingapi/post/99999/', format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['error'], 'Post not found or you do not have permission to delete this post.')
+        self.assertEqual(response.data['error'], 'Post not found.')
 
     def test_delete_post_unauthenticated(self):
         self.client.force_authenticate(user=None)

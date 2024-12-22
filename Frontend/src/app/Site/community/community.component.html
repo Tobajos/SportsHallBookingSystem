@@ -40,7 +40,9 @@
         </div>
 
         <div style="display:flex; justify-content: space-between; width: 100%;">
-          <a class="commentLink" (click)="toggleCommentInput(post.id)">Comments</a>
+          <a class="commentLink" (click)="toggleCommentInput(post.id)">
+            Comments ({{ post.commentsCount || 0 }})
+          </a>
           <div *ngIf="post.user.id === currentUser.user_id" class="postActions">
             <fa-icon [icon]="delete" class="icon" (click)="showConfirmation(post.id)"></fa-icon>
           </div>

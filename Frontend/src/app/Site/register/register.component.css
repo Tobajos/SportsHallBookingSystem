@@ -77,3 +77,13 @@ a:hover {
 .introText a:hover {
     text-decoration: underline;
 }
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.success-message {
+    color: green;
+    margin-bottom: 10px;
+}

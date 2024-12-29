@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SiteService } from '../../Services/site.service';
 import { AuthService } from '../../Services/auth.service';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'community',
@@ -18,9 +18,14 @@ export class CommunityComponent implements OnInit {
   selectedReservationId: number | null = null; 
   errorMessage: string | null = null;
   delete = faTrash;
-
+  edit = faPenToSquare
   isPostDeleteConfirmationVisible: boolean = false;
   postToDelete: number | null = null;
+
+  editingPostId: number | null = null; 
+  editedContent: string = ''; 
+
+  isAdmin: boolean = false;
 
   constructor(private siteService: SiteService, private authService: AuthService) {}
 
@@ -29,6 +34,7 @@ export class CommunityComponent implements OnInit {
     this.getAllPosts();
     this.getReservations();
     console.log("userek",this.currentUser)
+    this.isAdmin = this.authService.isAdmin(); 
   }
 
   addPost(): void {
@@ -56,6 +62,57 @@ export class CommunityComponent implements OnInit {
       );
     }
   }
+
+  startEditingPost(postId: number, content: string): void {
+    this.editingPostId = postId;
+    this.editedContent = content;
+  }
+  
+  cancelEditingPost(): void {
+    this.editingPostId = null;
+    this.editedContent = '';
+  }
+  
+  saveEditedPost(): void {
+    if (this.editingPostId !== null && this.editedContent.trim()) {
+      this.siteService.updatePost(this.editingPostId, this.editedContent).subscribe(
+        (updatedPost) => {
+          const post = this.posts.find(p => p.id === this.editingPostId);
+          if (post) {
+            post.content = updatedPost.content;
+          }
+          this.cancelEditingPost();
+          console.log('Post updated successfully:', updatedPost);
+        },
+        (error) => {
+          console.error('Error updating post:', error);
+        }
+      );
+    }
+  }
+  
+  deleteComment(commentId: number): void {
+    const post = this.posts.find(post => 
+      post.comments.some((comment: { id: number }) => comment.id === commentId)
+    );
+  
+    if (post) {
+      post.comments = post.comments.filter((comment: { id: number }) => comment.id !== commentId);
+    }
+  
+    this.siteService.deleteComment(commentId).subscribe(
+      () => {
+        console.log('Comment deleted successfully');
+      },
+      (error) => {
+        console.error('Error deleting comment:', error);
+      }
+    );
+  }
+  
+  
+  
+  
   
   confirmDeletePost(): void {
     if (this.postToDelete !== null) {

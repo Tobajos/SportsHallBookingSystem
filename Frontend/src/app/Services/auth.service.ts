@@ -27,6 +27,11 @@ export class AuthService {
     );
   }
   
+  isAdmin(): boolean {
+    const user = this.getUser();
+    return user?.is_staff || false;
+  }
+  
   
 
   register(data: any) {

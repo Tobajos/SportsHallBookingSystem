@@ -62,36 +62,35 @@ class ReservationView(APIView):
         reservations = Reservation.objects.filter(user=request.user)
         serializer = ReservationSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
-    
-    
-    def delete(self,request, reservation_id):
+        
+    def delete(self, request, reservation_id):
         if not request.user.is_authenticated:
             return Response({'error': 'You must be logged in to delete a reservation!'}, status=status.HTTP_401_UNAUTHORIZED)
         try:
-            reservation = Reservation.objects.get(id=reservation_id, user= request.user)
+            reservation = Reservation.objects.get(id=reservation_id)
+            if request.user != reservation.user and not request.user.is_staff:
+                return Response({'error': 'You do not have permission to delete this reservation.'}, status=status.HTTP_403_FORBIDDEN)
         except Reservation.DoesNotExist:
-            return Response({'error': 'Reservation not found or you do not have permission to delete this reservation.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Reservation not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         reservation.delete()
         return Response({'message': 'Reservation deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
 
     def put(self, request, reservation_id):
         if not request.user.is_authenticated:
             return Response({'error': 'You must be logged in to edit a reservation!'}, status=status.HTTP_401_UNAUTHORIZED)
-
         try:
-            reservation = Reservation.objects.get(id=reservation_id, user=request.user)
+            reservation = Reservation.objects.get(id=reservation_id)
+            if request.user != reservation.user and not request.user.is_staff:
+                return Response({'error': 'You do not have permission to edit this reservation.'}, status=status.HTTP_403_FORBIDDEN)
         except Reservation.DoesNotExist:
-            return Response({'error': 'Reservation not found or you do not have permission to edit this reservation.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Reservation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = ReservationSerializer(reservation, data=request.data, partial=True)
-        
         if serializer.is_valid():
             max_participants = serializer.validated_data.get('max_participants', reservation.max_participants)
-            
             current_participants = reservation.get_participant_count()
-            
             if max_participants < current_participants:
                 return Response({'error': 'New max participants cannot be less than current participants count!'}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
@@ -100,8 +99,6 @@ class ReservationView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-    
 class JoinReservationView(APIView):
     def post(self, request, reservation_id):
         if not request.user.is_authenticated:
@@ -240,6 +237,34 @@ class PostView(APIView):
         
         except Post.DoesNotExist:
             return Response({'error': 'Post not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request, post_id):
+        if not request.user.is_authenticated:
+            return Response({'error': 'You must be logged in to edit a post!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            post = Post.objects.get(id=post_id)
+            if request.user != post.user and not request.user.is_superuser:
+                return Response({'error': 'You do not have permission to edit this post.'}, status=status.HTTP_403_FORBIDDEN)
+        except Post.DoesNotExist:
+            return Response({'error': 'Post not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data.copy()
+        reservation_id = data.get('reservationId', None)
+
+        if reservation_id:
+            try:
+                reservation = Reservation.objects.get(id=reservation_id)
+                data['reservation'] = reservation.id
+            except Reservation.DoesNotExist:
+                return Response({'error': 'Reservation not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = PostSerializer(post, data=data, partial=True) 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AllPostView(APIView):
     def get(self,request):
@@ -293,16 +318,20 @@ class CommentView(APIView):
                 return Response({'error': 'Post not found!'}, status=status.HTTP_404_NOT_FOUND)
 
 
-    def delete(self, request, comment_id):
-        if not request.user.is_authenticated:
-            return Response({'error': 'You must be logged in to delete a comment!'}, status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            comment = Comment.objects.get(id=comment_id, user=request.user)
-        except Comment.DoesNotExist:
-            return Response({'error': 'Comment not found or you do not have permission to delete this comment.'}, status=status.HTTP_404_NOT_FOUND)
+        def delete(self, request, comment_id):
+            if not request.user.is_authenticated:
+                return Response({'error': 'You must be logged in to delete a comment!'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        comment.delete()
-        return Response({'message': 'Comment deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+            try:
+                comment = Comment.objects.get(id=comment_id)
+            except Comment.DoesNotExist:
+                return Response({'error': 'Comment not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            if request.user.is_superuser or request.user == comment.user:
+                comment.delete()
+                return Response({'message': 'Comment deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'error': 'You do not have permission to delete this comment.'}, status=status.HTTP_403_FORBIDDEN)
     
     
 class AllCommentView(APIView):

@@ -6,7 +6,11 @@
     <h3>Your Reservations:</h3>
     <div class="gridContainer">
       <div *ngFor="let reservation of userReservations" class="reservationContainer">
+ 
         <div *ngIf="editingReservationId !== reservation.id; else editForm" style="flex:1">
+          <div *ngIf="isAdmin" class="hostInfo">
+            <p><strong>Host:</strong> {{ reservation.user.firstname }} {{ reservation.user.lastname }}</p>
+          </div>
           <p><strong>Date:</strong> {{ reservation.date }}</p>
           <p><strong>Start Time:</strong> {{ reservation.start_time }}</p>
           <p><strong>End Time:</strong> {{ reservation.end_time }}</p>
@@ -17,7 +21,6 @@
             <li *ngFor="let participant of reservation.participants">
               {{ participant.firstname }} {{ participant.lastname }}
               <fa-icon [icon]="kick" class="icon" (click)="showParticipantRemoveConfirmation(reservation.id, participant.id)"></fa-icon>
-              
             </li>
           </ul>
           <ng-template #noParticipants>

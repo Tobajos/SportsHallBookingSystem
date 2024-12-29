@@ -24,10 +24,25 @@
       <div *ngFor="let post of posts" class="postContainer">
         <div class="postAuthorContainer">
           <small class="postAuthor">Posted by: {{ post.user.firstname }} {{ post.user.lastname }}</small>
-          <small class="postAuthor">{{ post.date | date:'dd.MM.yyyy' }}</small>
+          <small class="postAuthor">
+            <span style="font-weight: bold;padding-right: 1rem;">{{ post.date | date:'HH:mm' }}</span>
+            <span class="font-weight: normal;">{{ post.date | date:'dd.MM.yyyy' }}</span>
+          </small>
         </div>
 
-        <p class="postContent">{{ post.content }}</p>
+        <div class="postContentContainer">
+          <ng-container *ngIf="editingPostId === post.id; else viewMode">
+            <textarea class="textArea" [(ngModel)]="editedContent" rows="4" cols="50"></textarea>
+            <div class="buttonContainer">
+              <button class="button" (click)="saveEditedPost()">Save</button>
+              <button class="button" (click)="cancelEditingPost()">Cancel</button>
+            </div>
+          </ng-container>
+          <ng-template #viewMode>
+            <p class="postContent">{{ post.content }}</p>
+          </ng-template>
+        </div>
+        
 
         <div *ngIf="post.reservation">
           <p><strong>Date:</strong> {{ post.reservation.date }}</p>
@@ -43,7 +58,8 @@
           <a class="commentLink" (click)="toggleCommentInput(post.id)">
             Comments ({{ post.commentsCount || 0 }})
           </a>
-          <div *ngIf="post.user.id === currentUser.user_id" class="postActions">
+          <div *ngIf="post.user.id === currentUser.user_id || isAdmin" class="postActions">
+            <fa-icon [icon]="edit" class="icon" (click)="startEditingPost(post.id, post.content)"></fa-icon>
             <fa-icon [icon]="delete" class="icon" (click)="showConfirmation(post.id)"></fa-icon>
           </div>
         </div>
@@ -52,11 +68,24 @@
         <div *ngIf="activeCommentPostId === post.id">
           <div *ngIf="post.comments && post.comments.length > 0">
             <div *ngFor="let comment of post.comments" class="commentContainer">
-              <small>{{ comment.user.firstname }} {{ comment.user.lastname }}</small>
-              <p class="commentContent">{{ comment.content }}</p>
-
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <small>{{ comment.user.firstname }} {{ comment.user.lastname }}</small>
+                  <small class="commentDate">
+                    <span style="font-weight: bold; padding-right: 1rem;">{{ comment.date | date:'HH:mm' }}</span>
+                    <span class="font-weight: normal;">{{ comment.date | date:'dd.MM.yyyy' }}</span>
+                  </small>
+                  <p class="commentContent">{{ comment.content }}</p>
+                </div>
+                <div *ngIf="comment.user.id === currentUser.user_id || isAdmin">
+                  <fa-icon class="icon" [icon]="delete" (click)="deleteComment(comment.id)"></fa-icon>
+                </div>
+              </div>
             </div>
+            
           </div>
+          
+          
           <div class="commentTextContainer">
             <textarea class="textArea" [(ngModel)]="commentContent" rows="4" cols="50"
               placeholder="Write your comment..."></textarea>

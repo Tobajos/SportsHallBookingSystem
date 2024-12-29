@@ -1,88 +1,91 @@
 import { Component, OnInit } from '@angular/core';
 import { SiteService } from '../../Services/site.service';
-import { faTrash,faBars,faRightFromBracket, faUserXmark } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../Services/auth.service';
+import { faTrash, faBars, faRightFromBracket, faUserXmark } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
 
+  // FontAwesome icons
   kick = faUserXmark;
   leave = faRightFromBracket;
   edit = faBars;
   delete = faTrash;
+
+  // Data
   userReservations: any[] = [];
+  participantReservations: any[] = [];
   selectedReservationId: number | null = null;
-  isConfirmationVisible: boolean = false;
   editingReservationId: number | null = null;
   editingData: any = {};
-  participantReservations: any[] = [];
-  isLeaveConfirmationVisible: boolean = false;
+  isAdmin: boolean = false;
 
+  // Modals and confirmations
+  isConfirmationVisible: boolean = false;
+  isLeaveConfirmationVisible: boolean = false;
   isParticipantRemoveConfirmationVisible: boolean = false;
   selectedParticipantId: number | null = null;
   selectedReservationForParticipant: number | null = null;
 
-  constructor(private siteService: SiteService) { }
+  constructor(private siteService: SiteService, private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin(); 
     this.loadReservations();
     this.loadParticipantReservations();
   }
 
   loadReservations(): void {
-    this.siteService.getUserReservations().subscribe(
-      (reservations) => {
-        this.userReservations = reservations;
-        console.log('User reservations:', this.userReservations);
-      },
-      (error) => {
-        console.error('Error fetching user reservations:', error);
-      }
-    );
-  }
+    if (this.isAdmin) {
+      this.siteService.getAllReservations().subscribe(
+        (reservations) => {
+          this.userReservations = reservations;
+          console.log('Admin reservations:', this.userReservations);
+        },
+        (error) => {
+          console.error('Error fetching admin reservations:', error);
+        }
+      );
+    } else {
 
-  deleteReservation(reservationId: number): void {
-    this.siteService.deleteReservation(reservationId).subscribe(
-      (response) => {
-        console.log('Reservation deleted successfully:', response);
-        
-        this.loadReservations();
-      },
-      (error) => {
-        console.error('Error deleting reservation:', error);
-      }
-    );
-  }
-
-  showConfirmation(reservationId: number): void {
-    this.selectedReservationId = reservationId;
-    this.isConfirmationVisible = true;
-  }
-  
-  hideConfirmation(): void {
-    this.selectedReservationId = null;
-    this.isConfirmationVisible = false;
-  }
-  
-  confirmDelete(): void {
-    if (this.selectedReservationId !== null) {
-      this.deleteReservation(this.selectedReservationId);
-      this.hideConfirmation();
+      this.siteService.getUserReservations().subscribe(
+        (reservations) => {
+          this.userReservations = reservations;
+          console.log('User reservations:', this.userReservations);
+        },
+        (error) => {
+          console.error('Error fetching user reservations:', error);
+        }
+      );
     }
   }
+
+  loadParticipantReservations(): void {
+    this.siteService.getJoinedReservations().subscribe(
+      (reservations) => {
+        this.participantReservations = reservations;
+        console.log('Participant reservations:', this.participantReservations);
+      },
+      (error) => {
+        console.error('Error fetching participant reservations:', error);
+      }
+    );
+  }
+
   startEdit(reservation: any): void {
     this.editingReservationId = reservation.id;
-    this.editingData = { ...reservation }; 
+    this.editingData = { ...reservation };
   }
-  
+
   cancelEdit(): void {
     this.editingReservationId = null;
     this.editingData = {};
   }
-  
+
   saveReservation(reservationId: number): void {
     if (this.editingReservationId) {
       this.siteService.updateReservation(reservationId, this.editingData).subscribe(
@@ -97,20 +100,37 @@ export class ProfileComponent implements OnInit {
       );
     }
   }
-  
 
-  loadParticipantReservations(): void {
-    this.siteService.getJoinedReservations().subscribe(
-      (reservations) => {
-        this.participantReservations = reservations;
-        console.log('Participant reservations:', this.participantReservations);
+  deleteReservation(reservationId: number): void {
+    this.siteService.deleteReservation(reservationId).subscribe(
+      (response) => {
+        console.log('Reservation deleted successfully:', response);
+        this.loadReservations(); 
       },
       (error) => {
-        console.error('Error fetching participant reservations:', error);
+        console.error('Error deleting reservation:', error);
       }
     );
   }
-  
+
+  showConfirmation(reservationId: number): void {
+    this.selectedReservationId = reservationId;
+    this.isConfirmationVisible = true;
+  }
+
+  hideConfirmation(): void {
+    this.selectedReservationId = null;
+    this.isConfirmationVisible = false;
+  }
+
+  confirmDelete(): void {
+    if (this.selectedReservationId !== null) {
+      this.deleteReservation(this.selectedReservationId);
+      this.hideConfirmation();
+    }
+  }
+
+
   showLeaveConfirmation(reservationId: number): void {
     this.selectedReservationId = reservationId;
     this.isLeaveConfirmationVisible = true;
@@ -156,8 +176,7 @@ export class ProfileComponent implements OnInit {
       this.siteService.removeParticipantFromReservation(this.selectedReservationForParticipant, this.selectedParticipantId).subscribe(
         (response) => {
           console.log('Participant removed successfully:', response);
-          this.loadReservations();  
-          this.loadParticipantReservations(); 
+          this.loadReservations(); 
           this.hideParticipantRemoveConfirmation();
         },
         (error) => {

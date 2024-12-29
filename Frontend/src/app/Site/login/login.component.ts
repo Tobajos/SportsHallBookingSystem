@@ -12,7 +12,7 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  errorMessage: string | null = null; // Przechowywanie komunikatów o błędach
+  errorMessage: string | null = null; 
 
   onSubmit(form: NgForm) {
     const data = {
@@ -27,12 +27,12 @@ export class LoginComponent {
           "email": response.email,
           "token": response.token,
           "firstname": response.firstname,
-          "lastname": response.lastname
+          "lastname": response.lastname,
+          "is_staff": response.is_staff
         }));
         this.router.navigate(['/']);
       },
       error => {
-        // Ustaw wiadomość o błędzie na podstawie odpowiedzi backendu
         this.errorMessage = error.error.message || 'Login failed. Please try again.';
         console.log(error.error);
       }

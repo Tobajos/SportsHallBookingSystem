@@ -52,6 +52,44 @@ export class SiteService {
     );
   }
 
+  updatePost(postId: number, content: string): Observable<any> {
+    const user = this.authService.getUser();
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${user.token}`,
+      'Content-Type': 'application/json'
+    });
+  
+    const updateData = { content }; 
+  
+    return this.http.put(`${this.api_url}post/${postId}/`, updateData, { headers }).pipe(
+      catchError((error) => {
+        console.error('Error updating post:', error);
+        return throwError(error);
+      })
+    );
+  }
+
+  deleteComment(commentId: number): Observable<any> {
+  const user = this.authService.getUser();
+
+  const headers = new HttpHeaders({
+    'Authorization': `Token ${user.token}`, 
+    'Content-Type': 'application/json'      
+  });
+
+  return this.http
+    .delete(`${this.api_url}comment/${commentId}/`, { headers })
+    .pipe(
+      catchError((error) => {
+        console.error('Error deleting comment:', error);
+        return throwError(error);
+      })
+    );
+}
+
+  
+
   deletePost(postId: number): Observable<any> {
     const user = this.authService.getUser();
   

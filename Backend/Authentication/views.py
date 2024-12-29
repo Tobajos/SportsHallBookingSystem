@@ -48,7 +48,8 @@ class Login(APIView):
             'user_id': user.id,
             'firstname': user.firstname,
             'lastname': user.lastname,
-            'email': user.email
+            'email': user.email,
+            'is_staff': user.is_staff,
         }, status=status.HTTP_200_OK)
 
 

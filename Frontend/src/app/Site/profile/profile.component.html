@@ -1,7 +1,10 @@
 <div class="contentContainer">
   <h1>Welcome to your profile!</h1>
   <p class="subtext">Here, you can view and manage your reservations.</p>
-
+  <div *ngIf="isAdmin" class="admin-actions">
+    <button (click)="generatePDF()" class="button">Download Reservations Report (PDF)</button>
+  </div>
+  
   <div *ngIf="userReservations && userReservations.length > 0; else noReservations">
     <h3>Your Reservations:</h3>
     <div class="gridContainer">

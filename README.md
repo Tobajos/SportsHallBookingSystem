@@ -99,15 +99,15 @@ Now, you can start using the sports hall booking system.
 - **End-to-end tests**: The application includes Cypress-based E2E tests to verify UI workflows.
 - **Backend integration tests**: Django's built-in testing framework is used to validate API and business logic functionality.
 
-###Calendar Page
+### Calendar Page
 ![obraz](https://github.com/user-attachments/assets/750c3f78-1431-4343-8390-5120daba91ec)
 
 
-###Sign up Page
+### Sign up Page
 ![obraz](https://github.com/user-attachments/assets/72a32e4d-8722-43bf-ab7a-1561a1612b82)
 
 
-###Login Page
+### Login Page
 ![obraz](https://github.com/user-attachments/assets/2b4398d7-7011-43df-8f44-1dd79cf7c31e)
 
 
